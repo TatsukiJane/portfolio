@@ -2,10 +2,14 @@
 /**
  * Термин с определением, всплывающим при наведении.
  *
- * В макете тултипа нет — форма взята у иконки `info-popup-sharp` из набора:
- * плашка с треугольным хвостиком снизу по центру, то есть подсказка встаёт
- * над термином. Остальное собрано из токенов проекта: чёрная заливка кнопок,
- * радиус плиток, кегль body/small.
+ * Подсказка встаёт снизу и выравнивается по началу термина: взгляд идёт
+ * дальше по чтению — вниз и влево, — а не возвращается назад.
+ *
+ * В макете тултипа нет, всё собрано из токенов проекта: чёрная заливка
+ * кнопок, радиус плиток, кегль body/small, ширина 301 (плитка из сетки).
+ * Хвостика нет намеренно: подсказка умеет переворачиваться, когда снизу
+ * или справа не хватает места, а хвостик за ней не переедет — CSS не даёт
+ * перестилизовать псевдоэлемент под выбранный вариант позиции.
  *
  * Без JS: показ на :hover и :focus-visible. Термин получает tabindex, иначе
  * определение было бы недоступно с клавиатуры, а aria-describedby связывает
@@ -17,13 +21,17 @@ interface Props {
 
 const { definition } = Astro.props;
 const id = `term-${crypto.randomUUID().slice(0, 8)}`;
+/* Имя якоря уникально на каждый термин: одно имя на несколько элементов
+   в CSS anchor positioning разрешается в последний из них. */
+const anchor = `--anchor-${id}`;
 ---
 
-<span class="term" tabindex="0" aria-describedby={id}>
+<span class="term" style={`anchor-name: ${anchor}`} tabindex="0" aria-describedby={id}>
   <slot />
-  {/* Зазор до термина лежит внутри подсказки полем снизу: иначе мышь
-      пересекала бы пустоту и подсказка закрывалась бы по дороге. */}
-  <span class="term__tip" id={id} role="tooltip">
+  {/* Зазор до термина лежит внутри подсказки полями сверху и снизу: мышь
+      проходит его, не теряя наведения, и зазор остаётся на месте, с какой
+      стороны подсказка бы ни раскрылась. */}
+  <span class="term__tip" style={`position-anchor: ${anchor}`} id={id} role="tooltip">
     <span class="term__bubble">{definition}</span>
   </span>
 </span>
@@ -42,35 +50,89 @@ const id = `term-${crypto.randomUUID().slice(0, 8)}`;
     text-decoration-style: solid;
   }
 
+  /* Снизу и по левому краю термина. */
   .term__tip {
     position: absolute;
-    bottom: 100%;
-    left: 50%;
+    top: 100%;
+    left: 0;
     z-index: 1;
     width: max-content;
     max-width: 301px; /* ширина плитки из сетки макета */
-    padding-bottom: var(--space-2);
-    visibility: hidden;
+    padding-block: var(--space-2);
+    /*
+     * display: none, а не visibility: hidden — иначе браузер выбирает место
+     * подсказки один раз, при первой раскладке страницы, когда термин ещё
+     * далеко за пределами экрана, и держится за этот выбор. Убранная из
+     * раскладки подсказка примеряет место в тот момент, когда её открывают.
+     * allow-discrete и @starting-style сохраняют при этом плавное появление.
+     */
+    display: none;
     opacity: 0;
-    transform: translate(-50%, var(--space-1));
+    transform: translateY(calc(var(--space-1) * -1));
     transition:
       opacity 0.15s ease,
       transform 0.15s ease,
-      visibility 0.15s;
+      display 0.15s allow-discrete;
+  }
+
+  /*
+   * Корнер-кейсы: термин у нижней кромки окна или у правого края колонки.
+   * Браузер сам примеряет варианты и переворачивает подсказку наверх или
+   * вправо, если на месте она не помещается. Работает там, где есть CSS
+   * anchor positioning (Chromium); где нет — подсказка всегда раскрывается
+   * снизу-слева, то есть в задуманном положении.
+   */
+  @supports (anchor-name: --a) {
+    /* Термин перестаёт быть содержащим блоком: примерка вариантов идёт по
+       границам содержащего блока, и пока им был сам термин, сравнивать было
+       не с чем — подсказка не переворачивалась. Без позиционированного предка
+       границами становится видимая часть страницы. Место подсказке при этом
+       задаёт якорь, а не поток. */
+    .term {
+      position: static;
+    }
+
+    /* Место задаётся областью, а не парой top/left: с областями браузер сам
+       считает отступы и сам примеряет запасные варианты. Основной —
+       снизу от термина, вправо от его левого края. */
+    .term__tip {
+      top: auto;
+      left: auto;
+      position-area: block-end span-inline-end;
+      position-try-fallbacks:
+        block-start span-inline-end,
+        block-end span-inline-start,
+        block-start span-inline-start;
+    }
   }
 
   .term:hover .term__tip,
   .term:focus-visible .term__tip {
-    visibility: visible;
+    display: block;
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
 
-  /* Подчёркивание не наследуется: подсказка вынута из потока. */
+  @starting-style {
+    .term:hover .term__tip,
+    .term:focus-visible .term__tip {
+      opacity: 0;
+      transform: translateY(calc(var(--space-1) * -1));
+    }
+  }
+
+  /*
+   * Подчёркивание не наследуется: подсказка вынута из потока.
+   * Ограничение по высоте — на случай очень длинного определения: плашка
+   * не вырастает во всё окно, а прокручивается внутри. Прокрутка работает
+   * и мышью: подсказка лежит внутри термина, поэтому наведение не теряется.
+   */
   .term__bubble {
-    position: relative;
     display: block;
+    max-height: 50vh;
     padding: var(--space-3) var(--space-4);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     color: var(--text-on-color);
     font-size: var(--body-small-size);
     font-weight: var(--weight-medium);
@@ -79,17 +141,5 @@ const id = `term-${crypto.randomUUID().slice(0, 8)}`;
     background: var(--surface-primary);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-popover);
-  }
-
-  /* Хвостик — квадрат на 45°, наполовину утопленный в плашку. */
-  .term__bubble::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    width: 8px;
-    height: 8px;
-    background: var(--surface-primary);
-    transform: translate(-50%, -50%) rotate(45deg);
   }
 </style>
