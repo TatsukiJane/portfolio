@@ -53,7 +53,17 @@ const listBlock = z.object({
   items: z.array(z.string()).min(1),
 });
 
-const caseBlock = z.discriminatedUnion('type', [metricsBlock, textBlock, listBlock]);
+/**
+ * Плашка-подсказка. В макете компонент зовётся TooltipBlock, но самого тултипа
+ * в нём нет: это плашка про то, что термины дальше раскрываются при наведении.
+ */
+const noteBlock = z.object({
+  type: z.literal('note'),
+  title: z.string(),
+  text: z.string(),
+});
+
+const caseBlock = z.discriminatedUnion('type', [metricsBlock, textBlock, listBlock, noteBlock]);
 
 /** Раздел страницы кейса: заголовок в левой колонке, блоки в правой. */
 const caseSection = z.object({

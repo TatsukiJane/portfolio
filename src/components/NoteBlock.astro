@@ -1,0 +1,66 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Плашка-подсказка в правой колонке кейса: иконка «i», заголовок и пояснение.
+ *
+ * В макете компонент называется TooltipBlock (узел `4317:7481`), но самого
+ * тултипа тут нет — это плашка, которая объясняет, что дальше в тексте
+ * подчёркнутые пунктиром термины раскрываются при наведении. Поэтому
+ * заголовок набран тем же пунктиром: он показывает приём на себе.
+ *
+ * Размеры из макета: 614×140 при полях 20/32 и зазоре 8 до текста.
+ */
+interface Props {
+  title: string;
+  text: string;
+}
+
+const { title, text } = Astro.props;
+---
+
+<div class="note">
+  {/* Обёртка нужна, чтобы задать иконке цвет и запретить сжатие:
+      scoped-стили не достают до элементов дочернего компонента. */}
+  <span class="note__icon">
+    <Icon name="information" />
+  </span>
+
+  <div class="note__text">
+    <p class="note__title">{title}</p>
+    <p class="note__body">{text}</p>
+  </div>
+</div>
+
+<style>
+  .note {
+    display: flex;
+    gap: var(--space-2);
+    /* Справа поле шире: в макете 20 слева и 32 справа. */
+    padding: 20px var(--space-6) 20px 20px;
+    background: var(--surface-note);
+    border-radius: var(--radius-card);
+  }
+
+  .note__icon {
+    display: flex;
+    flex-shrink: 0;
+    color: var(--icon-note);
+  }
+
+  .note__text {
+    display: grid;
+    gap: var(--space-1); /* 4px между заголовком и пояснением */
+  }
+
+  /* Пунктир — тот же приём, которым дальше в кейсе размечены термины. */
+  .note__title {
+    color: var(--text-primary);
+    text-decoration: underline dotted;
+    text-decoration-thickness: 10%;
+  }
+
+  .note__body {
+    color: var(--text-secondary);
+  }
+</style>

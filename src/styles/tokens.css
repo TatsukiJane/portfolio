@@ -27,6 +27,7 @@
   --surface-base-translucent: rgb(255 255 255 / 50%); /* [var] заливка шапки — #ffffff на 50% */
   --surface-success: #028322; /* [var] заливка плитки метрики — тот же зелёный, что и текст */
   --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа и светлой плитки метрики */
+  --surface-note: #fcf8de; /* [pipette] фон плашки-подсказки в кейсе */
 
   /* --- Цвет: границы --- */
   --border-success-subtle: #c8e5cf; /* [pipette] обводка зелёного бейджа */
@@ -36,6 +37,7 @@
   /* --- Цвет: иконки --- */
   --icon-neutral: #1f1f1f; /* [var] icon/neutral/primary */
   --icon-on-color: #ffffff; /* [var] icon/onColor/primary */
+  --icon-note: #e68f14; /* [pipette] янтарная «i» в плашке-подсказке */
 
   /* --- Типографика --- */
   /* --font-manrope объявляет Astro (см. fonts в astro.config.mjs) */

@@ -2,6 +2,7 @@
 import BulletList from './BulletList.astro';
 import CaseTextBlock from './CaseTextBlock.astro';
 import FactCard from './FactCard.astro';
+import NoteBlock from './NoteBlock.astro';
 import type { CaseSection } from '../content.config.ts';
 
 /**
@@ -27,6 +28,10 @@ const { title, blocks } = Astro.props;
     <div class="section__content">
       {
         blocks.map((block) => {
+          if (block.type === 'note') {
+            return <NoteBlock title={block.title} text={block.text} />;
+          }
+
           if (block.type === 'metrics') {
             return (
               <div class="section__metrics">
