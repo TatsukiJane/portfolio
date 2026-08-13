@@ -1,24 +1,36 @@
 ---
 import Icon from './Icon.astro';
+import RichText from './RichText.astro';
 
 /**
  * Список с иконкой-маркером внутри текстового блока кейса.
  *
  * marker:
  *   star    — серая искра, нейтральный перечень («Действия»)
+ *   insight — жёлтая звезда, находки исследования
  *   success — зелёная стрелка вверх и зелёный текст («Результат»)
+ *   done    — зелёная галочка при обычном тексте («Что сработало»)
  *
  * Маркер стоит в слоте 24px, отступ до текста уже заложен в сам файл иконки:
  * у искры глиф 12×12 внутри слота, поэтому у строки зазора нет. У стрелки
- * глиф шире, и в макете ей добавлены 2px.
+ * глиф шире, и в макете ей добавлены 2px, у галочки — 6px.
  */
 interface Props {
   items: string[];
-  marker?: 'star' | 'success';
+  marker?: 'star' | 'insight' | 'success' | 'done';
+  /** Словарь терминов для разметки `[[ключ|слово]]` внутри строк. */
+  terms?: Record<string, string>;
 }
 
-const { items, marker = 'star' } = Astro.props;
-const iconName = marker === 'success' ? 'up' : 'star-bullet-sparkle';
+const { items, marker = 'star', terms } = Astro.props;
+
+/* Цвет искры и звезды зашит в сами файлы — он осмысленный, а не служебный. */
+const icons = {
+  star: 'star-bullet-sparkle',
+  insight: 'star-bullet',
+  success: 'up',
+  done: 'done',
+} as const;
 ---
 
 <ul class:list={['list', `list--${marker}`]}>
@@ -26,9 +38,11 @@ const iconName = marker === 'success' ? 'up' : 'star-bullet-sparkle';
     items.map((item) => (
       <li class="list__item">
         <span class="list__marker">
-          <Icon name={iconName} />
+          <Icon name={icons[marker]} />
         </span>
-        {item}
+        <span>
+          <RichText text={item} terms={terms} />
+        </span>
       </li>
     ))
   }
@@ -50,7 +64,9 @@ const iconName = marker === 'success' ? 'up' : 'star-bullet-sparkle';
     flex-shrink: 0;
   }
 
-  .list--star {
+  .list--star,
+  .list--insight,
+  .list--done {
     color: var(--text-secondary);
   }
 
@@ -60,5 +76,14 @@ const iconName = marker === 'success' ? 'up' : 'star-bullet-sparkle';
 
   .list--success .list__item {
     gap: 2px;
+  }
+
+  /* У галочки цвет свой: в макете она зелёная, а текст рядом — обычный. */
+  .list--done .list__item {
+    gap: 6px;
+  }
+
+  .list--done .list__marker {
+    color: var(--text-success);
   }
 </style>

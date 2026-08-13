@@ -4,6 +4,7 @@ import CaseSlider from './CaseSlider.astro';
 import CaseTextBlock from './CaseTextBlock.astro';
 import FactCard from './FactCard.astro';
 import NoteBlock from './NoteBlock.astro';
+import RichText from './RichText.astro';
 import type { CaseSection } from '../content.config.ts';
 
 /**
@@ -11,10 +12,15 @@ import type { CaseSection } from '../content.config.ts';
  *
  * Колонки макета — 614 + 12 + 614 внутри контейнера 1240, блоки в правой
  * колонке идут с шагом 80px.
+ *
+ * Заголовок необязателен: в макете шаги раздела «Решения» разведены на
+ * отдельные блоки с пустой левой колонкой. В вёрстке это один раздел —
+ * тогда заголовок держится в поле зрения на всех его шагах.
  */
-type Props = CaseSection;
+type Props = CaseSection & { terms?: Record<string, string> };
 
-const { title, blocks } = Astro.props;
+const { title, titleLines, blocks, terms } = Astro.props;
+const lines = titleLines ?? [title];
 ---
 
 <section class="section">
@@ -23,7 +29,16 @@ const { title, blocks } = Astro.props;
         которого заголовок липнет: сам по себе он высотой в одну строку
         и ездить ему было бы негде. */}
     <div class="section__aside">
-      <h2 class="section__title">{title}</h2>
+      <h2 class="section__title">
+        {
+          lines.map((line, index) => (
+            <>
+              {index > 0 && <br />}
+              {line}
+            </>
+          ))
+        }
+      </h2>
     </div>
 
     <div class="section__content">
@@ -36,7 +51,11 @@ const { title, blocks } = Astro.props;
           }
 
           if (block.type === 'heading') {
-            return <h3 class="section__step">{block.text}</h3>;
+            return (
+              <h3 class:list={['section__step', block.gapBefore === 160 && 'section__step--apart']}>
+                {block.text}
+              </h3>
+            );
           }
 
           if (block.type === 'slider') {
@@ -68,9 +87,13 @@ const { title, blocks } = Astro.props;
           return (
             <CaseTextBlock title={block.title} titleGap={block.titleGap}>
               {block.type === 'text' ? (
-                block.paragraphs.map((paragraph) => <p>{paragraph}</p>)
+                block.paragraphs.map((paragraph) => (
+                  <p>
+                    <RichText text={paragraph} terms={terms} />
+                  </p>
+                ))
               ) : (
-                <BulletList items={block.items} marker={block.marker} />
+                <BulletList items={block.items} marker={block.marker} terms={terms} />
               )}
             </CaseTextBlock>
           );
@@ -115,14 +138,23 @@ const { title, blocks } = Astro.props;
     gap: var(--column-gap);
   }
 
-  /* Подзаголовок шага. Первая его строка встаёт на первую строку заголовка
-     раздела: у заголовка интерлиньяж 52, у подзаголовка 32, отсюда
-     (52 − 32) / 2 = 10. */
   .section__step {
-    margin-top: 10px;
     color: var(--text-primary);
     font-size: var(--title-h4-size);
     line-height: var(--title-h4-height);
+  }
+
+  /* Первая строка первого подзаголовка встаёт на первую строку заголовка
+     раздела: у заголовка интерлиньяж 52, у подзаголовка 32, отсюда
+     (52 − 32) / 2 = 10. Дальше в разделе выравнивать уже не с чем. */
+  .section__content > .section__step:first-child {
+    margin-top: 10px;
+  }
+
+  /* Новый шаг внутри раздела отделён вдвое большим отступом: 80 от сетки
+     блоков плюс 80 здесь. */
+  .section__step--apart {
+    margin-top: var(--space-10);
   }
 
   /* Слайдер выходит из правой колонки на всю ширину контейнера. */

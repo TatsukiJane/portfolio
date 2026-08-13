@@ -1,0 +1,45 @@
+---
+import Term from './Term.astro';
+
+/**
+ * Строка текста кейса с разметкой терминов.
+ *
+ * В макете внутри абзацев и списков часть слов подчёркнута — это термины,
+ * которые раздел «Терминология» объясняет. В контенте они помечаются
+ * `[[ключ|слово в тексте]]`, а если ключ совпадает с самим словом — просто
+ * `[[слово]]`. Определение приходит из блока «Терминологии» с тем же ключом,
+ * так что текст определения живёт в одном месте.
+ *
+ * Термин без определения остаётся подчёркнутым, но без подсказки: обещать
+ * определение, которого нет, хуже, чем просто выделить слово.
+ */
+interface Props {
+  text: string;
+  /** Ключ → определение. Собирается на странице кейса по всем разделам. */
+  terms?: Record<string, string>;
+}
+
+const { text, terms = {} } = Astro.props;
+
+type Piece = { plain: string } | { key: string; label: string };
+
+/* Разбор на куски: текст между метками и сами метки. */
+const pieces: Piece[] = [];
+let cursor = 0;
+
+for (const match of text.matchAll(/\[\[([^\]]+)\]\]/g)) {
+  if (match.index > cursor) pieces.push({ plain: text.slice(cursor, match.index) });
+
+  const [key, label] = match[1].split('|');
+  pieces.push({ key: key.trim(), label: (label ?? key).trim() });
+  cursor = match.index + match[0].length;
+}
+
+if (cursor < text.length) pieces.push({ plain: text.slice(cursor) });
+---
+
+{
+  pieces.map((piece) =>
+    'plain' in piece ? piece.plain : <Term definition={terms[piece.key]}>{piece.label}</Term>,
+  )
+}

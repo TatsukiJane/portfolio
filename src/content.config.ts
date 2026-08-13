@@ -52,6 +52,12 @@ const caseBlocks = (image: SchemaContext['image']) => {
   const textBlock = z.object({
     type: z.literal('text'),
     ...titledBlock,
+    /**
+     * Ключ термина, определение которого даёт этот блок. Так раздел
+     * «Терминология» становится источником правды для подсказок: определение
+     * берётся из первого абзаца, а в тексте на него ссылаются `[[ключ|слово]]`.
+     */
+    term: z.string().optional(),
     paragraphs: z.array(z.string()).min(1),
   });
 
@@ -59,8 +65,12 @@ const caseBlocks = (image: SchemaContext['image']) => {
   const listBlock = z.object({
     type: z.literal('list'),
     ...titledBlock,
-    /** star — серая искра, success — зелёная стрелка вверх и зелёный текст. */
-    marker: z.enum(['star', 'success']).default('star'),
+    /**
+     * star — серая искра, insight — жёлтая звезда (находки исследования),
+     * success — зелёная стрелка вверх и зелёный текст, done — зелёная
+     * галочка при обычном тексте («Что сработало»).
+     */
+    marker: z.enum(['star', 'insight', 'success', 'done']).default('star'),
     items: z.array(z.string()).min(1),
   });
 
@@ -84,6 +94,12 @@ const caseBlocks = (image: SchemaContext['image']) => {
   const headingBlock = z.object({
     type: z.literal('heading'),
     text: z.string(),
+    /**
+     * Отступ перед подзаголовком. 80 — обычный шаг блоков, 160 — новый шаг
+     * внутри раздела: в макете шаги «Решений» разведены как отдельные блоки,
+     * но заголовок раздела у них один, поэтому в вёрстке это один раздел.
+     */
+    gapBefore: z.union([z.literal(80), z.literal(160)]).default(80),
   });
 
   /**
@@ -174,6 +190,14 @@ const caseBlocks = (image: SchemaContext['image']) => {
 const caseSection = (image: SchemaContext['image']) =>
   z.object({
     title: z.string(),
+
+    /**
+     * Тот же заголовок, разбитый на строки так, как он набран в макете.
+     * Без него строка ломается сама — а в колонке 614 длинный заголовок
+     * помещается целиком, хотя в макете он в две строки.
+     */
+    titleLines: z.array(z.string()).optional(),
+
     blocks: z.array(caseBlocks(image)).min(1),
   });
 

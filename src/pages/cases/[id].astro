@@ -25,6 +25,19 @@ const { title, sections } = entry.data;
 const description = sections
   .flatMap((section) => section.blocks)
   .find((block) => block.type === 'text')?.paragraphs[0];
+
+/*
+ * Словарь терминов: блок «Терминологии» с полем `term` даёт определение,
+ * а разметка `[[ключ|слово]]` в тексте кейса на него ссылается. Так текст
+ * определения хранится в одном месте — там, где его читают целиком.
+ */
+const terms: Record<string, string> = {};
+
+for (const section of sections) {
+  for (const block of section.blocks) {
+    if (block.type === 'text' && block.term) terms[block.term] = block.paragraphs[0];
+  }
+}
 ---
 
 <BaseLayout title={`${title} — ${profile.name}`} description={description}>
@@ -37,7 +50,12 @@ const description = sections
           {/* Разделители лежат вне контейнера: в макете линия идёт
               от края до края окна, а не по ширине контента. */}
           <Divider />
-          <CaseSection title={section.title} blocks={section.blocks} />
+          <CaseSection
+            title={section.title}
+            titleLines={section.titleLines}
+            blocks={section.blocks}
+            terms={terms}
+          />
         </>
       ))
     }

@@ -16,24 +16,37 @@
  * его с плашкой для скринридера.
  */
 interface Props {
-  definition: string;
+  /**
+   * Без определения термин остаётся подчёркнутым, но подсказки не обещает:
+   * в макете такие слова тоже подчёркнуты, а объяснения им нет.
+   */
+  definition?: string;
 }
 
 const { definition } = Astro.props;
-const id = `term-${crypto.randomUUID().slice(0, 8)}`;
+const id = definition ? `term-${crypto.randomUUID().slice(0, 8)}` : undefined;
 /* Имя якоря уникально на каждый термин: одно имя на несколько элементов
    в CSS anchor positioning разрешается в последний из них. */
-const anchor = `--anchor-${id}`;
+const anchor = id && `--anchor-${id}`;
 ---
 
-<span class="term" style={`anchor-name: ${anchor}`} tabindex="0" aria-describedby={id}>
+<span
+  class:list={['term', !definition && 'term--plain']}
+  style={anchor ? `anchor-name: ${anchor}` : undefined}
+  tabindex={definition ? 0 : undefined}
+  aria-describedby={id}
+>
   <slot />
   {/* Зазор до термина лежит внутри подсказки полями сверху и снизу: мышь
       проходит его, не теряя наведения, и зазор остаётся на месте, с какой
       стороны подсказка бы ни раскрылась. */}
-  <span class="term__tip" style={`position-anchor: ${anchor}`} id={id} role="tooltip">
-    <span class="term__bubble">{definition}</span>
-  </span>
+  {
+    definition && (
+      <span class="term__tip" style={`position-anchor: ${anchor}`} id={id} role="tooltip">
+        <span class="term__bubble">{definition}</span>
+      </span>
+    )
+  }
 </span>
 
 <style>
@@ -47,6 +60,13 @@ const anchor = `--anchor-${id}`;
   /* Пунктир становится сплошным — знак, что подсказка уже открыта. */
   .term:hover,
   .term:focus-visible {
+    text-decoration-style: solid;
+  }
+
+  /* Термин без определения: подчёркивание как в макете — сплошное, — и никаких
+     обещаний интерактивности. */
+  .term--plain {
+    cursor: inherit;
     text-decoration-style: solid;
   }
 
