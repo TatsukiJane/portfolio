@@ -136,6 +136,19 @@ sections:
                 y: 468
                 width: 339
                 height: 58
+            # Выноски: от пункта списка первого экрана ко второму и от поля
+            # второго экрана к третьему. Числа — рамки узлов макета.
+            connectors:
+              - src: ../../assets/case-documents-arrow-problem-1.svg
+                x: 254
+                y: 96.5
+                width: 98
+                height: 435.5
+              - src: ../../assets/case-documents-arrow-problem-2.svg
+                x: 660
+                y: 88
+                width: 52
+                height: 232.145
       - type: text
         title: Стало
         paragraphs:
@@ -157,6 +170,19 @@ sections:
                 опций уменьшил барьер первого шага
               - Отделил прочие типы документов на отдельный экран и расположил
                 их по убыванию популярности
+            # От кнопки создания к шторке и от пункта «По типу документа»
+            # к третьему экрану.
+            connectors:
+              - src: ../../assets/case-documents-arrow-solution-1.svg
+                x: 144
+                y: 370
+                width: 208
+                height: 160
+              - src: ../../assets/case-documents-arrow-solution-2.svg
+                x: 638
+                y: 243
+                width: 74
+                height: 325
           # Второй слайд: подпись одна на весь ряд — она про шаг целиком.
           - shots:
               - alt: Экран «Документ загружен» со списком файлов и кнопкой
@@ -166,6 +192,13 @@ sections:
               - Просмотр вложений (файлов документов) теперь оформлен как
                 отдельный шаг, так как именно их тщательно проверяют перед
                 отправкой
+            # От строки файла на первом экране к предпросмотру на втором.
+            connectors:
+              - src: ../../assets/case-documents-arrow-solution-3.svg
+                x: 276
+                y: 103
+                width: 76
+                height: 193
       - type: metrics
         title: Результат изменений в шаге
         titleGap: 24

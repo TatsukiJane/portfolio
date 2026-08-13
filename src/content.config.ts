@@ -137,6 +137,24 @@ const caseBlocks = (image: SchemaContext['image']) => {
               }),
             )
             .default([]),
+
+          /**
+           * Выноски: кривые линии от элемента одного экрана к другому,
+           * экспортированные из макета как SVG. Система координат та же,
+           * что у выделений; числа — рамка узла в макете, вынос обводки
+           * экспорта компонент учитывает сам.
+           */
+          connectors: z
+            .array(
+              z.object({
+                src: image(),
+                x: z.number(),
+                y: z.number(),
+                width: z.number(),
+                height: z.number(),
+              }),
+            )
+            .default([]),
         }),
       )
       .min(1),
