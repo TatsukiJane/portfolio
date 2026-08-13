@@ -61,6 +61,11 @@ const noteBlock = z.object({
   type: z.literal('note'),
   title: z.string(),
   text: z.string(),
+  /**
+   * Определение, всплывающее при наведении на заголовок плашки. Плашка
+   * рассказывает про подсказки у терминов — с этим полем она их и показывает.
+   */
+  definition: z.string().optional(),
 });
 
 const caseBlock = z.discriminatedUnion('type', [metricsBlock, textBlock, listBlock, noteBlock]);

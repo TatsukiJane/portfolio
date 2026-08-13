@@ -1,0 +1,95 @@
+---
+/**
+ * Термин с определением, всплывающим при наведении.
+ *
+ * В макете тултипа нет — форма взята у иконки `info-popup-sharp` из набора:
+ * плашка с треугольным хвостиком снизу по центру, то есть подсказка встаёт
+ * над термином. Остальное собрано из токенов проекта: чёрная заливка кнопок,
+ * радиус плиток, кегль body/small.
+ *
+ * Без JS: показ на :hover и :focus-visible. Термин получает tabindex, иначе
+ * определение было бы недоступно с клавиатуры, а aria-describedby связывает
+ * его с плашкой для скринридера.
+ */
+interface Props {
+  definition: string;
+}
+
+const { definition } = Astro.props;
+const id = `term-${crypto.randomUUID().slice(0, 8)}`;
+---
+
+<span class="term" tabindex="0" aria-describedby={id}>
+  <slot />
+  {/* Зазор до термина лежит внутри подсказки полем снизу: иначе мышь
+      пересекала бы пустоту и подсказка закрывалась бы по дороге. */}
+  <span class="term__tip" id={id} role="tooltip">
+    <span class="term__bubble">{definition}</span>
+  </span>
+</span>
+
+<style>
+  .term {
+    position: relative;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-decoration-thickness: 10%;
+  }
+
+  /* Пунктир становится сплошным — знак, что подсказка уже открыта. */
+  .term:hover,
+  .term:focus-visible {
+    text-decoration-style: solid;
+  }
+
+  .term__tip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    z-index: 1;
+    width: max-content;
+    max-width: 301px; /* ширина плитки из сетки макета */
+    padding-bottom: var(--space-2);
+    visibility: hidden;
+    opacity: 0;
+    transform: translate(-50%, var(--space-1));
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease,
+      visibility 0.15s;
+  }
+
+  .term:hover .term__tip,
+  .term:focus-visible .term__tip {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* Подчёркивание не наследуется: подсказка вынута из потока. */
+  .term__bubble {
+    position: relative;
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    color: var(--text-on-color);
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+    text-align: left;
+    background: var(--surface-primary);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-popover);
+  }
+
+  /* Хвостик — квадрат на 45°, наполовину утопленный в плашку. */
+  .term__bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--surface-primary);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+</style>

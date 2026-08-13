@@ -29,7 +29,9 @@ const { title, blocks } = Astro.props;
       {
         blocks.map((block) => {
           if (block.type === 'note') {
-            return <NoteBlock title={block.title} text={block.text} />;
+            return (
+              <NoteBlock title={block.title} text={block.text} definition={block.definition} />
+            );
           }
 
           if (block.type === 'metrics') {

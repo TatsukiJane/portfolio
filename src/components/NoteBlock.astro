@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import Term from './Term.astro';
 
 /**
  * Плашка-подсказка в правой колонке кейса: иконка «i», заголовок и пояснение.
@@ -14,9 +15,15 @@ import Icon from './Icon.astro';
 interface Props {
   title: string;
   text: string;
+  /**
+   * Определение, всплывающее при наведении на заголовок. Заголовок здесь —
+   * показательный пример приёма: подсказка объясняет приём и тут же его
+   * показывает. Без определения остаётся просто подчёркнутый текст.
+   */
+  definition?: string;
 }
 
-const { title, text } = Astro.props;
+const { title, text, definition } = Astro.props;
 ---
 
 <div class="note">
@@ -27,7 +34,12 @@ const { title, text } = Astro.props;
   </span>
 
   <div class="note__text">
-    <p class="note__title">{title}</p>
+    {/* Пунктир рисует либо Term, либо сам заголовок — но не оба сразу:
+        подчёркивание от абзаца всё равно протянулось бы на термин внутри,
+        и линии наложились бы. */}
+    <p class:list={['note__title', !definition && 'note__title--dotted']}>
+      {definition ? <Term definition={definition}>{title}</Term> : title}
+    </p>
     <p class="note__body">{text}</p>
   </div>
 </div>
@@ -53,9 +65,12 @@ const { title, text } = Astro.props;
     gap: var(--space-1); /* 4px между заголовком и пояснением */
   }
 
-  /* Пунктир — тот же приём, которым дальше в кейсе размечены термины. */
   .note__title {
     color: var(--text-primary);
+  }
+
+  /* Пунктир — тот же приём, которым дальше в кейсе размечены термины. */
+  .note__title--dotted {
     text-decoration: underline dotted;
     text-decoration-thickness: 10%;
   }
