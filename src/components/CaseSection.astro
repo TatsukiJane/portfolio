@@ -17,7 +17,12 @@ const { title, blocks } = Astro.props;
 
 <section class="section">
   <div class="container section__grid">
-    <h2 class="section__title">{title}</h2>
+    {/* Обёртка тянется на всю высоту раздела — это и есть поле, внутри
+        которого заголовок липнет: сам по себе он высотой в одну строку
+        и ездить ему было бы негде. */}
+    <div class="section__aside">
+      <h2 class="section__title">{title}</h2>
+    </div>
 
     <div class="section__content">
       {
@@ -52,12 +57,14 @@ const { title, blocks } = Astro.props;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--column-gap);
-    /* Заголовок стоит вровень с началом содержимого, а не растягивается
-       на всю высоту раздела. */
-    align-items: start;
   }
 
+  /* Заголовок держится в поле зрения, пока не кончится раздел, и
+     останавливается на 40px ниже липкой шапки — вплотную к ней он бы
+     с ней слипся. В макете этого нет: там страница не прокручивается. */
   .section__title {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-7));
     font-size: var(--title-h2-size);
     line-height: var(--title-h2-height);
   }
