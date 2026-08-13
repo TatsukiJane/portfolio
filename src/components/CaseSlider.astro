@@ -66,7 +66,15 @@ const isSlider = slides.length > 1;
           </div>
 
           {slide.comments.length > 0 && (
-            <div class="slider__comments">
+            /* Одна подпись при нескольких экранах относится ко всему слайду —
+               в макете она и набрана на всю ширину ряда. */
+            <div
+              class:list={[
+                'slider__comments',
+                slide.comments.length === 1 && slide.shots.length > 1 && 'slider__comments--whole',
+              ]}
+              style={`--shots: ${slide.shots.length}`}
+            >
               {slide.comments.map((comment) => (
                 <p class="slider__comment">{comment}</p>
               ))}
@@ -185,6 +193,22 @@ const isSlider = slides.length > 1;
        строками в тексте. Растягиваем ряд вместо этого: с переводом на другой
        язык пустые строки перестали бы совпадать. */
     align-items: stretch;
+  }
+
+  /* Одна подпись на весь ряд экранов — так в макете набран второй слайд
+     «стало»: подпись там относится к паре экранов целиком, а не к одному
+     из них. Ширину приходится считать по числу экранов: столбцов больше нет,
+     а тянуться на всю ширину слайда (1144) подписи нельзя — ряд экранов
+     уже 1008. */
+  .slider__comments--whole {
+    display: block;
+    width: calc(var(--shots) * 288px + (var(--shots) - 1) * 72px);
+  }
+
+  /* Поля 71 по бокам и выключка по центру — из макета. */
+  .slider__comments--whole .slider__comment {
+    padding-inline: 71px;
+    text-align: center;
   }
 
   /* Обводка нарисована внутренней тенью, а не border: в макете она не
