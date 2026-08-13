@@ -1,0 +1,11 @@
+# Единообразные переносы строк (работа с разных машин)
+* text=auto eol=lf
+
+# Бинарные файлы — без нормализации
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.pdf binary
