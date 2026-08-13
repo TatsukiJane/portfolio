@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://portfolio.vercel.app/sitemap-index.xml
+Sitemap: https://tolegenaibek.vercel.app/sitemap-index.xml

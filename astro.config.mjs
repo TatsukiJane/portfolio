@@ -2,9 +2,10 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// TODO: заменить на реальный адрес после первого деплоя на Vercel.
-// Используется в sitemap и в OG-тегах (BaseLayout.astro).
-const site = 'https://portfolio.vercel.app';
+// Боевой адрес сайта. От него зависят canonical-ссылки, OG-теги
+// (см. BaseLayout.astro) и sitemap — при смене домена менять здесь
+// и в public/robots.txt.
+const site = 'https://tolegenaibek.vercel.app';
 
 export default defineConfig({
   site,
