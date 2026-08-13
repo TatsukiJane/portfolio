@@ -28,11 +28,27 @@
   --surface-success: #028322; /* [var] заливка плитки метрики — тот же зелёный, что и текст */
   --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа и светлой плитки метрики */
   --surface-note: #fcf8de; /* [pipette] фон плашки-подсказки в кейсе */
+  --surface-neutral-tertiary: #dbdbdb; /* [var] surface/neutral/tertiary — неактивная точка слайдера */
+  --surface-device: #0c0c0c; /* [pipette] рамка мокапа телефона в слайдере */
+  --surface-control-overlay: rgb(0 0 0 / 12%); /* [pipette] кнопки-стрелки слайдера */
+
+  /*
+   * Комментарии к мокапам. Красные подписывают «было», зелёные — «стало».
+   * Зелёный фон совпадает с --surface-success-subtle, но обводка и текст
+   * у комментариев свои, темнее бейджей.
+   */
+  --surface-comment-problem: #fde9e9; /* [pipette] */
+  --border-comment-problem: #e89494; /* [pipette] им же обведён овал-выделение */
+  --text-comment-problem: #8f3333; /* [pipette] */
+  --surface-comment-solution: #edf9f0; /* [pipette] */
+  --border-comment-solution: #b8d4bb; /* [pipette] */
+  --text-comment-solution: #115123; /* [pipette] */
 
   /* --- Цвет: границы --- */
   --border-success-subtle: #c8e5cf; /* [pipette] обводка зелёного бейджа */
   --border-neutral: #e6e6e6; /* [pipette] обводка нейтрального бейджа */
   --border-decorative: #f1f1f1; /* [pipette] декоративные линии в hero */
+  --border-control-overlay: rgb(255 255 255 / 8%); /* [pipette] обводка кнопок-стрелок слайдера */
 
   /* --- Цвет: иконки --- */
   --icon-neutral: #1f1f1f; /* [var] icon/neutral/primary */
@@ -62,6 +78,9 @@
   /* [var] body/small — 500, 16/24 */
   --body-small-size: 1rem;
   --body-small-height: 1.5rem;
+  /* [var] body/extraSmall — 500, 14/20. Комментарии к мокапам в кейсе. */
+  --body-extra-small-size: 0.875rem;
+  --body-extra-small-height: 1.25rem;
   /* [var] label/smallStrong — 700, 16/20 */
   --label-strong-size: 1rem;
   --label-strong-height: 1.25rem;

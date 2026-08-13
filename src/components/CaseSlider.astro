@@ -1,0 +1,260 @@
+---
+import Icon from './Icon.astro';
+import Mockup from './Mockup.astro';
+import type { CaseSliderBlock } from '../content.config.ts';
+
+/**
+ * Серый контейнер с экранами и подписями к ним. В макете компонент называется
+ * CaseInfoSlider (узел `4127:1297`) и имеет два флага: несколько слайдов
+ * (тогда появляются стрелки и точки) и заголовок над содержимым.
+ *
+ * Изображения здесь — только сами экраны. Подписи, стрелки, точки и выделения
+ * собраны кодом: так их можно перевести на английский, не перерисовывая
+ * картинки.
+ *
+ * Размеры из макета: контейнер 1240 при полях 48/80, ряд экранов и ряд
+ * подписей по 1008 с зазором 72, между рядами 32.
+ */
+type Props = Omit<CaseSliderBlock, 'type' | 'gapBefore'>;
+
+const { title, tone = 'problem', slides } = Astro.props;
+
+/* Управление нужно только когда листать есть что. */
+const isSlider = slides.length > 1;
+---
+
+<div class:list={['slider', `slider--${tone}`]} data-slider>
+  {title && <p class="slider__title">{title}</p>}
+
+  {/*
+    Дорожка прокручивается по горизонтали с прилипанием — листать можно
+    и без скрипта, колесом или тачпадом. Скрипт добавляет только стрелки
+    и точки.
+  */}
+  <div class="slider__track" data-track>
+    {
+      slides.map((slide) => (
+        <div class="slider__slide">
+          <div class="slider__shots">
+            {slide.shots.map((shot) => (
+              <Mockup alt={shot.alt} src={shot.src} />
+            ))}
+
+            {/* Выделения лежат поверх экранов по координатам макета. */}
+            {slide.highlights.map((spot) => (
+              <span
+                class="slider__highlight"
+                style={`left: ${spot.x}px; top: ${spot.y}px; width: ${spot.width}px; height: ${spot.height}px`}
+              />
+            ))}
+          </div>
+
+          {slide.comments.length > 0 && (
+            <div class="slider__comments">
+              {slide.comments.map((comment) => (
+                <p class="slider__comment">{comment}</p>
+              ))}
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    isSlider && (
+      <>
+        <button class="slider__nav slider__nav--prev" type="button" data-prev aria-label="Предыдущий экран">
+          <Icon name="arrow-left" />
+        </button>
+        <button class="slider__nav slider__nav--next" type="button" data-next aria-label="Следующий экран">
+          <Icon name="arrow-right" />
+        </button>
+
+        <div class="slider__dots" role="tablist" aria-label="Слайды">
+          {slides.map((_, index) => (
+            <button
+              class="slider__dot"
+              type="button"
+              data-dot
+              aria-label={`Слайд ${index + 1}`}
+              aria-selected={index === 0}
+              role="tab"
+            />
+          ))}
+        </div>
+      </>
+    )
+  }
+</div>
+
+<style>
+  .slider {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6); /* 32px между заголовком, экранами и точками */
+    padding: var(--space-10) var(--space-8); /* 80 по вертикали, 48 по бокам */
+    overflow: clip;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-large);
+  }
+
+  /* Заголовок в макете шириной 596 и с полем 12 снизу. */
+  .slider__title {
+    width: 596px;
+    padding-bottom: var(--space-3);
+    color: var(--text-primary);
+    font-size: var(--title-h5-size);
+    font-weight: var(--weight-semibold);
+    line-height: var(--title-h5-height);
+    text-align: center;
+  }
+
+  .slider__track {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .slider__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .slider__slide {
+    display: flex;
+    flex: 0 0 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+    scroll-snap-align: center;
+  }
+
+  /* Ряд экранов: 3 × 288 при зазоре 72 даёт ровно 1008, как в макете. */
+  .slider__shots {
+    position: relative;
+    display: flex;
+    gap: 72px;
+    align-items: center;
+  }
+
+  .slider__highlight {
+    position: absolute;
+    border: 1px solid var(--border-comment-problem);
+    border-radius: 50%;
+  }
+
+  /* Подписи стоят под своими экранами и той же ширины. */
+  .slider__comments {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 288px;
+    gap: 72px;
+    /* В макете подписи в ряду одной высоты — там она добрана пустыми
+       строками в тексте. Растягиваем ряд вместо этого: с переводом на другой
+       язык пустые строки перестали бы совпадать. */
+    align-items: stretch;
+  }
+
+  /* Обводка нарисована внутренней тенью, а не border: в макете она не
+     увеличивает плашку, и с border ряд подписей становился на 2px выше. */
+  .slider__comment {
+    padding: var(--space-4);
+    font-size: var(--body-extra-small-size);
+    line-height: var(--body-extra-small-height);
+    border-radius: var(--radius-card);
+  }
+
+  .slider--problem .slider__comment {
+    color: var(--text-comment-problem);
+    background: var(--surface-comment-problem);
+    box-shadow: inset 0 0 0 1px var(--border-comment-problem);
+  }
+
+  .slider--solution .slider__comment {
+    color: var(--text-comment-solution);
+    background: var(--surface-comment-solution);
+    box-shadow: inset 0 0 0 1px var(--border-comment-solution);
+  }
+
+  /* --- Управление --- */
+
+  /* Стрелки в макете стоят в 48px от краёв и сдвинуты на 8px ниже центра:
+     так они попадают в середину экранов, а не всего контейнера с подписями. */
+  .slider__nav {
+    position: absolute;
+    top: calc(50% + 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding-inline: var(--space-2);
+    background: var(--surface-control-overlay);
+    border: 1px solid var(--border-control-overlay);
+    border-radius: var(--radius-small);
+    transform: translateY(-50%);
+    transition: background-color 0.15s ease;
+  }
+
+  .slider__nav:hover {
+    background: rgb(0 0 0 / 20%);
+  }
+
+  .slider__nav--prev {
+    left: var(--space-8);
+  }
+
+  .slider__nav--next {
+    right: var(--space-8);
+  }
+
+  .slider__dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .slider__dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    background: var(--surface-neutral-tertiary);
+    border-radius: var(--radius-small);
+  }
+
+  .slider__dot[aria-selected='true'] {
+    background: var(--surface-primary);
+  }
+</style>
+
+<script>
+  /*
+   * Единственный скрипт на странице кейса: стрелки и точки слайдера.
+   * Разметка работает и без него — дорожка прокручивается штатно, с
+   * прилипанием, поэтому падение скрипта не ломает содержимое.
+   */
+  document.querySelectorAll<HTMLElement>('[data-slider]').forEach((slider) => {
+    const track = slider.querySelector<HTMLElement>('[data-track]');
+    const dots = [...slider.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    if (!track || dots.length === 0) return;
+
+    const current = () => Math.round(track.scrollLeft / track.clientWidth);
+    const go = (index: number) => {
+      const target = Math.max(0, Math.min(dots.length - 1, index));
+      track.scrollTo({ left: target * track.clientWidth, behavior: 'smooth' });
+    };
+
+    slider.querySelector('[data-prev]')?.addEventListener('click', () => go(current() - 1));
+    slider.querySelector('[data-next]')?.addEventListener('click', () => go(current() + 1));
+    dots.forEach((dot, index) => dot.addEventListener('click', () => go(index)));
+
+    /* Точки следят за прокруткой, а не за нажатиями: листать можно и колесом. */
+    track.addEventListener('scroll', () => {
+      const active = current();
+      dots.forEach((dot, index) => dot.setAttribute('aria-selected', String(index === active)));
+    });
+  });
+</script>

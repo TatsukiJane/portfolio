@@ -1,4 +1,4 @@
-import { defineCollection } from 'astro:content';
+import { defineCollection, type SchemaContext } from 'astro:content';
 import { glob } from 'astro/loaders';
 // Astro 7 работает со zod v4, а re-export `z` из 'astro:content' помечен
 // устаревшим — поэтому импортируем zod напрямую.
@@ -10,6 +10,9 @@ import { z } from 'zod';
  * frontmatter, а не телом markdown: тело не отличило бы абзац от списка
  * с зелёными стрелками и не задало бы отступы макета.
  *
+ * Блоки описаны фабрикой, а не константами: помощник image() существует
+ * только внутри схемы коллекции, а экраны в слайдере — картинки.
+ *
  * Новый кейс = новый .md в src/content/cases/ и картинки в src/assets/.
  */
 
@@ -18,66 +21,147 @@ const titledBlock = {
   title: z.string(),
   /**
    * Отступ от заголовка блока до содержимого, px. В макете он почти везде 8,
-   * но у отдельных блоков разрядка больше — например у «Результата» 16.
+   * но у отдельных блоков разрядка больше — например у «Результата» 16,
+   * а у блока с плиткой метрики 24.
    */
   titleGap: z.union([z.literal(8), z.literal(16), z.literal(24)]).default(8),
 };
 
-/** Ряд плиток с метриками: одна залитая зелёным, остальные светлые. */
-const metricsBlock = z.object({
-  type: z.literal('metrics'),
-  items: z
-    .array(
-      z.object({
-        value: z.string(),
-        label: z.string(),
-        tone: z.enum(['solid', 'subtle']).default('subtle'),
-      }),
-    )
-    .min(1),
-});
-
-/** Заголовок и один или несколько абзацев. */
-const textBlock = z.object({
-  type: z.literal('text'),
-  ...titledBlock,
-  paragraphs: z.array(z.string()).min(1),
-});
-
-/** Заголовок и список с иконкой-маркером. */
-const listBlock = z.object({
-  type: z.literal('list'),
-  ...titledBlock,
-  /** star — серая искра, success — зелёная стрелка вверх и зелёный текст. */
-  marker: z.enum(['star', 'success']).default('star'),
-  items: z.array(z.string()).min(1),
-});
-
-/**
- * Плашка-подсказка. В макете компонент зовётся TooltipBlock, но самого тултипа
- * в нём нет: это плашка про то, что термины дальше раскрываются при наведении.
- */
-const noteBlock = z.object({
-  type: z.literal('note'),
-  title: z.string(),
-  text: z.string(),
+const caseBlocks = (image: SchemaContext['image']) => {
   /**
-   * Определение, всплывающее при наведении на заголовок плашки. Плашка
-   * рассказывает про подсказки у терминов — с этим полем она их и показывает.
+   * Ряд плиток с метриками: одна залитая зелёным, остальные светлые.
+   * С заголовком плитки оборачиваются в текстовый блок — так в макете набран
+   * итог шага, где плитка одна и занимает всю колонку.
    */
-  definition: z.string().optional(),
-});
+  const metricsBlock = z.object({
+    type: z.literal('metrics'),
+    title: z.string().optional(),
+    titleGap: titledBlock.titleGap,
+    items: z
+      .array(
+        z.object({
+          value: z.string(),
+          label: z.string(),
+          tone: z.enum(['solid', 'subtle']).default('subtle'),
+        }),
+      )
+      .min(1),
+  });
 
-const caseBlock = z.discriminatedUnion('type', [metricsBlock, textBlock, listBlock, noteBlock]);
+  /** Заголовок и один или несколько абзацев. */
+  const textBlock = z.object({
+    type: z.literal('text'),
+    ...titledBlock,
+    paragraphs: z.array(z.string()).min(1),
+  });
+
+  /** Заголовок и список с иконкой-маркером. */
+  const listBlock = z.object({
+    type: z.literal('list'),
+    ...titledBlock,
+    /** star — серая искра, success — зелёная стрелка вверх и зелёный текст. */
+    marker: z.enum(['star', 'success']).default('star'),
+    items: z.array(z.string()).min(1),
+  });
+
+  /**
+   * Плашка-подсказка. В макете компонент зовётся TooltipBlock, но самого
+   * тултипа в нём нет: это плашка про то, что термины дальше раскрываются
+   * при наведении.
+   */
+  const noteBlock = z.object({
+    type: z.literal('note'),
+    title: z.string(),
+    text: z.string(),
+    /**
+     * Определение, всплывающее при наведении на заголовок плашки. Плашка
+     * рассказывает про подсказки у терминов — с этим полем она их и показывает.
+     */
+    definition: z.string().optional(),
+  });
+
+  /** Подзаголовок внутри раздела — например название шага. */
+  const headingBlock = z.object({
+    type: z.literal('heading'),
+    text: z.string(),
+  });
+
+  /**
+   * Слайдер с экранами приложения и подписями к ним. В макете —
+   * CaseInfoSlider. Изображения тут только сами экраны: подписи, точки
+   * и выделения собраны кодом, чтобы английскую версию не пришлось
+   * перерисовывать.
+   */
+  const sliderBlock = z.object({
+    type: z.literal('slider'),
+
+    /** Необязательный заголовок над экранами, по центру контейнера. */
+    title: z.string().optional(),
+
+    /** problem — красные подписи («было»), solution — зелёные («стало»). */
+    tone: z.enum(['problem', 'solution']).default('problem'),
+
+    /**
+     * В макете слайдер стоит ближе к своему подзаголовку, чем блоки друг
+     * к другу: 24 против обычных 80.
+     */
+    gapBefore: z.union([z.literal(24), z.literal(80)]).default(80),
+
+    slides: z
+      .array(
+        z.object({
+          shots: z
+            .array(
+              z.object({
+                /** Пока картинок нет, на месте экрана стоит заглушка с подписью. */
+                src: image().optional(),
+                alt: z.string(),
+              }),
+            )
+            .min(1),
+
+          /** Подписи под экранами — по одной на экран. */
+          comments: z.array(z.string()).default([]),
+
+          /**
+           * Выделения поверх экранов: координаты и размер от левого верхнего
+           * угла ряда экранов, как в макете.
+           */
+          highlights: z
+            .array(
+              z.object({
+                x: z.number(),
+                y: z.number(),
+                width: z.number(),
+                height: z.number(),
+              }),
+            )
+            .default([]),
+        }),
+      )
+      .min(1),
+  });
+
+  return z.discriminatedUnion('type', [
+    metricsBlock,
+    textBlock,
+    listBlock,
+    noteBlock,
+    headingBlock,
+    sliderBlock,
+  ]);
+};
 
 /** Раздел страницы кейса: заголовок в левой колонке, блоки в правой. */
-const caseSection = z.object({
-  title: z.string(),
-  blocks: z.array(caseBlock).min(1),
-});
+const caseSection = (image: SchemaContext['image']) =>
+  z.object({
+    title: z.string(),
+    blocks: z.array(caseBlocks(image)).min(1),
+  });
 
-export type CaseBlock = z.infer<typeof caseBlock>;
-export type CaseSection = z.infer<typeof caseSection>;
+export type CaseBlock = z.infer<ReturnType<typeof caseBlocks>>;
+export type CaseSection = z.infer<ReturnType<typeof caseSection>>;
+export type CaseSliderBlock = Extract<CaseBlock, { type: 'slider' }>;
 
 const cases = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/cases' }),
@@ -124,7 +208,7 @@ const cases = defineCollection({
        * Содержимое страницы кейса. Пока разделов нет, страница не собирается:
        * пустой адрес не нужен ни в sitemap, ни в ссылках.
        */
-      sections: z.array(caseSection).default([]),
+      sections: z.array(caseSection(image)).default([]),
 
       /**
        * true — карточка помечена как заготовка: экраны в ней ещё не настоящие.

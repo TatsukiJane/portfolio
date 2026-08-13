@@ -1,5 +1,6 @@
 ---
 import BulletList from './BulletList.astro';
+import CaseSlider from './CaseSlider.astro';
 import CaseTextBlock from './CaseTextBlock.astro';
 import FactCard from './FactCard.astro';
 import NoteBlock from './NoteBlock.astro';
@@ -34,13 +35,33 @@ const { title, blocks } = Astro.props;
             );
           }
 
-          if (block.type === 'metrics') {
+          if (block.type === 'heading') {
+            return <h3 class="section__step">{block.text}</h3>;
+          }
+
+          if (block.type === 'slider') {
             return (
+              <div class:list={['section__slider', block.gapBefore === 24 && 'section__slider--tight']}>
+                <CaseSlider title={block.title} tone={block.tone} slides={block.slides} />
+              </div>
+            );
+          }
+
+          if (block.type === 'metrics') {
+            const tiles = (
               <div class="section__metrics">
                 {block.items.map((metric) => (
                   <FactCard value={metric.value} label={metric.label} tone={metric.tone} />
                 ))}
               </div>
+            );
+
+            return block.title ? (
+              <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+                {tiles}
+              </CaseTextBlock>
+            ) : (
+              tiles
             );
           }
 
@@ -84,11 +105,35 @@ const { title, blocks } = Astro.props;
     color: var(--text-secondary);
   }
 
-  /* Плитки метрик делят колонку поровну: в макете 301 + 12 + 301 = 614. */
+  /* Плитки метрик делят колонку поровну: в макете 301 + 12 + 301 = 614.
+     Одна плитка тем же правилом занимает колонку целиком — так в макете
+     набран итог шага. */
   .section__metrics {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     gap: var(--column-gap);
+  }
+
+  /* Подзаголовок шага. Первая его строка встаёт на первую строку заголовка
+     раздела: у заголовка интерлиньяж 52, у подзаголовка 32, отсюда
+     (52 − 32) / 2 = 10. */
+  .section__step {
+    margin-top: 10px;
+    color: var(--text-primary);
+    font-size: var(--title-h4-size);
+    line-height: var(--title-h4-height);
+  }
+
+  /* Слайдер выходит из правой колонки на всю ширину контейнера. */
+  .section__slider {
+    width: calc(var(--column) * 2 + var(--column-gap));
+    margin-left: calc((var(--column) + var(--column-gap)) * -1);
+  }
+
+  /* В макете слайдер стоит к своему подзаголовку ближе, чем блоки друг
+     к другу: 24 вместо 80, то есть на 56 выше. */
+  .section__slider--tight {
+    margin-top: calc(var(--space-9) * -1);
   }
 </style>
