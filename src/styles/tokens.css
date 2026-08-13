@@ -17,6 +17,7 @@
   --text-tertiary: #a3a3a3; /* [var] text/neutral/tertiary */
   --text-on-color: #ffffff; /* [var] text/onColor/primary */
   --text-success: #028322; /* [var] text/success/primary */
+  --text-tag: #161616; /* [var] текст плашек-тегов в hero — в макете задан литералом */
 
   /* --- Цвет: поверхности --- */
   --surface-primary: #0a0a0a; /* [var] surface/neutral/primary — чёрные кнопки и плитки */
@@ -63,6 +64,7 @@
 
   /* --- Эффекты --- */
   --blur-backdrop: 8px; /* [var] Background blur шапки */
+  --shadow-badge: 0 2px 2px rgb(0 0 0 / 4%); /* [var] тень плашек-тегов в hero */
 
   /* --- Скругления --- */
   --radius-small: 0.25rem; /* [var] base/50 = 4 */

@@ -171,13 +171,15 @@ const tags = [
     align-items: center;
     height: var(--badge-height);
     padding-inline: var(--space-4);
+    color: var(--text-tag);
     font-size: var(--body-small-size);
-    font-weight: var(--weight-medium);
+    font-weight: var(--weight-bold);
     line-height: var(--body-small-height);
     white-space: nowrap;
     background: var(--surface-base);
+    border: 1px solid var(--border-neutral);
     border-radius: var(--radius-control);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+    box-shadow: var(--shadow-badge);
     transform: translate(-50%, -50%) rotate(var(--tag-angle));
   }
 
