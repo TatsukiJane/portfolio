@@ -4,7 +4,8 @@ import { profile } from '../data/profile.ts';
 import { ui } from '../data/ui.ts';
 
 /**
- * Футер «Контакты»: заголовок слева и три плитки-ссылки справа.
+ * Футер «Контакты»: заголовок слева, три плитки-ссылки справа и подпись
+ * об авторстве в левой колонке внизу.
  *
  * Плитки стоят в сетке 2×2, где верхняя-левая ячейка намеренно пустая —
  * в макете там ничего нет, за счёт этого блок выглядит уступом.
@@ -50,6 +51,8 @@ import { ui } from '../data/ui.ts';
         newTab
       />
     </div>
+
+    <p class="footer__credit">{ui.footer.credit}</p>
   </div>
 </footer>
 
@@ -92,5 +95,14 @@ import { ui } from '../data/ui.ts';
   .footer__cell--bottom-right {
     grid-column: 3;
     grid-row: 2;
+  }
+
+  /* Подпись стоит в левой колонке второго ряда и прижата к его низу —
+     в макете её низ совпадает с низом плиток. */
+  .footer__credit {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    color: var(--text-tertiary);
   }
 </style>
