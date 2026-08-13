@@ -18,8 +18,6 @@ import Icon, { type IconName } from './Icon.astro';
 interface Props {
   href: string;
   label: string;
-  /** Жирная приставка перед подписью — в макете так набрано «CV Резюме». */
-  prefix?: string;
   icon?: IconName;
   variant?: 'primary' | 'subtle' | 'plain' | 'ghost';
   size?: 'md' | 'sm' | 'tile';
@@ -31,7 +29,6 @@ interface Props {
 const {
   href,
   label,
-  prefix,
   icon,
   variant = 'subtle',
   size = 'md',
@@ -48,10 +45,7 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   {...target}
 >
   {icon && <Icon name={icon} />}
-  {/* Пробел между приставкой и подписью не виден (в flex-контейнере пробельные
-      узлы игнорируются), но без него текст копируется как «CVРезюме». */}
-  {prefix && <span class="button__prefix">{prefix}</span>}{prefix && ' '}
-  <span>{label}</span>
+  <span class="button__label">{label}</span>
 </a>
 
 <style>
@@ -61,7 +55,9 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2);
+    /* В макете между слотом иконки и обёрткой подписи 4px, и у самой
+       обёртки ещё 4px по бокам — вместе 8px до текста. */
+    gap: var(--space-1);
     font-size: var(--label-strong-size);
     font-weight: var(--weight-bold);
     line-height: var(--label-strong-height);
@@ -72,9 +68,13 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
       color 0.15s ease;
   }
 
-  /* В макете «CV» — иконка-леттеринг; разрядка приближает текст к ней. */
-  .button__prefix {
-    letter-spacing: 0.01em;
+  .button__label {
+    padding-inline: var(--space-1);
+  }
+
+  /* У ссылок навигации подпись стоит без обёртки — в макете так же. */
+  .button--ghost .button__label {
+    padding-inline: 0;
   }
 
   /* --- Заливки --- */
@@ -123,7 +123,7 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
   .button--md {
     height: var(--control-height);
-    padding-inline: var(--space-5);
+    padding-inline: var(--space-4); /* 16px, как в макете */
   }
 
   .button--sm {
@@ -131,9 +131,11 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
     padding-inline: var(--space-3); /* 12px — ссылки навигации, ширина 73/89/97 в макете */
   }
 
-  /* Кнопка Telegram в шапке заметно свободнее ссылок: 124px при том же тексте. */
+  /* Кнопка Telegram в шапке: в макете поля разные — 8px слева под иконку
+     и 12px справа за подписью. */
   .button--sm.button--primary {
-    padding-inline: var(--space-4);
+    padding-left: var(--space-2);
+    padding-right: var(--space-3);
   }
 
   /* Плитки футера: 301×152 в макете, ширину задаёт сетка. */

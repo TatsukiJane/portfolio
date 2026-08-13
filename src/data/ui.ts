@@ -15,8 +15,8 @@ export const ui = {
   actions: {
     telegram: 'Telegram',
     linkedin: 'LinkedIn',
+    /* «CV» перед подписью — иконка из набора, а не текст (см. Button.astro). */
     cv: 'Резюме',
-    cvPrefix: 'CV',
   },
   sections: {
     /* Визуального заголовка у списка кейсов в макете нет — он нужен
