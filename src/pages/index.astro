@@ -14,13 +14,17 @@ const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.dat
   <Hero />
   <Divider />
 
-  <section class="cases container" id="cases">
+  <section class="cases" id="cases">
     <h2 class="visually-hidden">{ui.sections.cases}</h2>
     {
       cases.map((entry, index) => (
         <>
+          {/* Разделители лежат вне контейнера: в макете линия идёт
+              от края до края окна, а не по ширине контента. */}
           {index > 0 && <Divider />}
-          <CaseCard entry={entry} />
+          <div class="container">
+            <CaseCard entry={entry} />
+          </div>
         </>
       ))
     }
