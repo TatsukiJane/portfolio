@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseHero from '../../components/CaseHero.astro';
+import CaseSection from '../../components/CaseSection.astro';
+import Divider from '../../components/Divider.astro';
+import { profile } from '../../data/profile.ts';
+
+/*
+ * Страница кейса собирается только у тех кейсов, где уже описаны разделы.
+ * Заготовка без содержимого дала бы пустую страницу — и в sitemap тоже.
+ */
+export async function getStaticPaths() {
+  const cases = await getCollection('cases');
+
+  return cases
+    .filter((entry) => entry.data.sections.length > 0)
+    .map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { title, sections } = entry.data;
+
+/* Отдельного поля под описание в макете нет — берём первый абзац кейса. */
+const description = sections
+  .flatMap((section) => section.blocks)
+  .find((block) => block.type === 'text')?.paragraphs[0];
+---
+
+<BaseLayout title={`${title} — ${profile.name}`} description={description}>
+  <CaseHero entry={entry} />
+
+  <div class="case-body">
+    {
+      sections.map((section) => (
+        <>
+          {/* Разделители лежат вне контейнера: в макете линия идёт
+              от края до края окна, а не по ширине контента. */}
+          <Divider />
+          <CaseSection title={section.title} blocks={section.blocks} />
+        </>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  /* Вертикальный ритм макета: между разделами и разделителями ровно 160px,
+     поэтому разделитель здесь — такой же элемент сетки, как раздел. */
+  .case-body {
+    display: grid;
+    gap: var(--space-section);
+    padding-bottom: var(--space-section);
+  }
+</style>

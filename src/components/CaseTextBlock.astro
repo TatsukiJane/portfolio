@@ -1,0 +1,47 @@
+---
+/**
+ * Текстовый блок в правой колонке кейса: подзаголовок и содержимое —
+ * абзацы или список.
+ *
+ * Подзаголовок набран стилем title/h5 (20/26), поэтому глобальный размер h3
+ * здесь переопределён: уровень заголовка задаёт структура документа,
+ * а не кегль.
+ */
+interface Props {
+  title: string;
+  /**
+   * Отступ от заголовка до содержимого, px. В макете он почти везде 8,
+   * но у отдельных блоков разрядка больше — значение приходит из контента,
+   * чтобы исключение не пришлось зашивать в компонент.
+   */
+  titleGap?: number;
+}
+
+const { title, titleGap = 8 } = Astro.props;
+---
+
+<div class="text-block" style={`--title-gap: ${titleGap}px`}>
+  <h3 class="text-block__title">{title}</h3>
+  <div class="text-block__content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .text-block {
+    display: grid;
+    row-gap: var(--title-gap);
+  }
+
+  .text-block__title {
+    color: var(--text-primary);
+    font-size: var(--title-h5-size);
+    line-height: var(--title-h5-height);
+  }
+
+  /* Абзацы внутри блока идут с шагом 8px. */
+  .text-block__content {
+    display: grid;
+    gap: var(--space-2);
+  }
+</style>

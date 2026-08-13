@@ -1,0 +1,80 @@
+---
+import BulletList from './BulletList.astro';
+import CaseTextBlock from './CaseTextBlock.astro';
+import FactCard from './FactCard.astro';
+import type { CaseSection } from '../content.config.ts';
+
+/**
+ * Раздел страницы кейса: заголовок в левой колонке, содержимое в правой.
+ *
+ * Колонки макета — 614 + 12 + 614 внутри контейнера 1240, блоки в правой
+ * колонке идут с шагом 80px.
+ */
+type Props = CaseSection;
+
+const { title, blocks } = Astro.props;
+---
+
+<section class="section">
+  <div class="container section__grid">
+    <h2 class="section__title">{title}</h2>
+
+    <div class="section__content">
+      {
+        blocks.map((block) => {
+          if (block.type === 'metrics') {
+            return (
+              <div class="section__metrics">
+                {block.items.map((metric) => (
+                  <FactCard value={metric.value} label={metric.label} tone={metric.tone} />
+                ))}
+              </div>
+            );
+          }
+
+          return (
+            <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+              {block.type === 'text' ? (
+                block.paragraphs.map((paragraph) => <p>{paragraph}</p>)
+              ) : (
+                <BulletList items={block.items} marker={block.marker} />
+              )}
+            </CaseTextBlock>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .section__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--column-gap);
+    /* Заголовок стоит вровень с началом содержимого, а не растягивается
+       на всю высоту раздела. */
+    align-items: start;
+  }
+
+  .section__title {
+    font-size: var(--title-h2-size);
+    line-height: var(--title-h2-height);
+  }
+
+  /* Цвет абзацев задан здесь: они рождаются в этом шаблоне и уезжают
+     в слот CaseTextBlock, куда его scoped-стили уже не достают. */
+  .section__content {
+    display: grid;
+    gap: var(--space-10); /* 80px между блоками */
+    color: var(--text-secondary);
+  }
+
+  /* Плитки метрик делят колонку поровну: в макете 301 + 12 + 301 = 614. */
+  .section__metrics {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: var(--column-gap);
+  }
+</style>

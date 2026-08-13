@@ -1,0 +1,79 @@
+---
+import PhoneShots from './PhoneShots.astro';
+import type { CollectionEntry } from 'astro:content';
+
+/**
+ * Первый экран страницы кейса: заголовок, метка платформы у правого края
+ * и серый контейнер с экранами приложения.
+ *
+ * Ритм макета: экран начинается на 144px (44 шапки + 100 отступа),
+ * от заголовка до контейнера 32px, высота контейнера 821px.
+ */
+interface Props {
+  entry: CollectionEntry<'cases'>;
+}
+
+const { entry } = Astro.props;
+const { title, titleLines, tags, shots } = entry.data;
+
+/* Разбивка на строки взята из макета; если её не задали — строка ломается сама. */
+const lines = titleLines ?? [title];
+---
+
+<section class="hero">
+  <div class="container">
+    <div class="hero__head">
+      <h1 class="hero__title">
+        {
+          /* Пробел перед <br> не виден, но без него заголовок копируется
+             и индексируется одним словом. */
+          lines.map((line, index) => (
+            <>
+              {index > 0 && (
+                <>
+                  {' '}
+                  <br />
+                </>
+              )}
+              {line}
+            </>
+          ))
+        }
+      </h1>
+
+      {tags.length > 0 && <p class="hero__tags">{tags.join(', ')}</p>}
+    </div>
+
+    {shots.length > 0 && <PhoneShots shots={shots} />}
+  </div>
+</section>
+
+<style>
+  .hero {
+    /* Шапка занимает 44px, а первый экран в макете начинается на 144px. */
+    padding-top: 100px;
+    padding-bottom: var(--space-section);
+  }
+
+  /* Метка платформы прижата к правому краю и стоит на нижней строке
+     заголовка — в макете её низ совпадает с низом H1. */
+  .hero__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6); /* 32px до контейнера с экранами */
+  }
+
+  .hero__title {
+    max-width: 613px;
+  }
+
+  .hero__tags {
+    color: var(--text-tertiary);
+    font-size: var(--title-h5-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--title-h5-height);
+    white-space: nowrap;
+  }
+</style>

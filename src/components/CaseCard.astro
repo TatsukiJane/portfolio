@@ -1,17 +1,17 @@
 ---
-import { Image } from 'astro:assets';
 import Badge from './Badge.astro';
+import PhoneShots from './PhoneShots.astro';
 import type { CollectionEntry } from 'astro:content';
 
 /**
  * Карточка кейса на главной: заголовок, плашки с метриками и серый контейнер
  * с экранами приложения.
  *
- * Размеры из макета: контейнер 1240×821 с полями 60/72, экраны 320×693
- * с рамкой телефона 4px и зазором 56px между рамками.
+ * Контейнер с экранами вынесен в PhoneShots — в макете это тот же узел,
+ * что и в первом экране страницы кейса.
  *
- * Пока карточка не ссылка — страниц кейсов ещё нет. Когда появятся,
- * достаточно обернуть содержимое в <a href={`/cases/${entry.id}`}>.
+ * Пока карточка не ссылка: страница кейса свёрстана только частично.
+ * Когда она будет готова, содержимое оборачивается в <a href={`/cases/${entry.id}`}>.
  */
 interface Props {
   entry: CollectionEntry<'cases'>;
@@ -39,22 +39,12 @@ const { title, metrics, tags, shots } = entry.data;
     }
   </div>
 
-  {
-    shots.length > 0 && (
-      <div class="case__shots">
-        {shots.map((shot) => (
-          <div class="case__device">
-            <Image src={shot.src} alt={shot.alt} width={320} height={693} />
-          </div>
-        ))}
-      </div>
-    )
-  }
+  {shots.length > 0 && <PhoneShots shots={shots} interactive />}
 </article>
 
 <style>
-  /* Курсор-указатель вместе с ховером обещают клик — когда появятся
-     страницы кейсов, карточка станет ссылкой. */
+  /* Курсор-указатель вместе с ховером обещают клик — когда страница кейса
+     будет готова, карточка станет ссылкой. */
   .case {
     cursor: pointer;
   }
@@ -72,55 +62,5 @@ const { title, metrics, tags, shots } = entry.data;
     display: flex;
     flex-wrap: wrap;
     gap: var(--column-gap);
-  }
-
-  .case__shots {
-    display: flex;
-    /* Поля 60/72 и зазор 56 подобраны так, чтобы внешние края рамок
-       встали на те же позиции, что в макете. */
-    gap: 56px;
-    justify-content: center;
-    padding: 60px 72px;
-    background: var(--surface-secondary);
-    border-radius: var(--radius-large);
-    transition: background-color 0.3s ease;
-  }
-
-  /* Рамка телефона: в макете она нарисована наружу от экрана,
-     поэтому content-box, а не border-box. */
-  .case__device {
-    box-sizing: content-box;
-    width: 320px;
-    overflow: hidden;
-    background: var(--surface-base);
-    border: 4px solid var(--surface-primary);
-    border-radius: 32px;
-    transition: transform 0.3s ease;
-  }
-
-  /* Ховер карточки: фон едва темнеет, телефоны приподнимаются лёгким
-     каскадом слева направо. Эффекта в макете нет — добавлен как отклик
-     на будущую кликабельность карточки (страницы кейсов). */
-  .case:hover .case__shots {
-    background: #efefef;
-  }
-
-  .case:hover .case__device {
-    transform: translateY(-8px);
-  }
-
-  .case:hover .case__device:nth-child(2) {
-    transition-delay: 60ms;
-  }
-
-  .case:hover .case__device:nth-child(3) {
-    transition-delay: 120ms;
-  }
-
-  /* При отключённой анимации подпрыгивание превратилось бы в дёрганье. */
-  @media (prefers-reduced-motion: reduce) {
-    .case:hover .case__device {
-      transform: none;
-    }
   }
 </style>

@@ -13,10 +13,11 @@
 :root {
   /* --- Цвет: текст --- */
   --text-primary: #0a0a0a; /* [var] text/neutral/primary */
-  --text-secondary: #525252; /* [pipette] подписи и нейтральный бейдж */
+  --text-secondary: #525252; /* [var] text/neutral/secondary — абзацы кейса, нейтральный бейдж */
   --text-tertiary: #a3a3a3; /* [var] text/neutral/tertiary */
   --text-on-color: #ffffff; /* [var] text/onColor/primary */
   --text-success: #028322; /* [var] text/success/primary */
+  --text-on-success: #edf9f0; /* [pipette] текст и иконка на залитой зелёной плитке */
   --text-tag: #161616; /* [var] текст плашек-тегов в hero — в макете задан литералом */
 
   /* --- Цвет: поверхности --- */
@@ -24,7 +25,8 @@
   --surface-secondary: #f5f5f5; /* [var] surface/neutral/secondary — серые контейнеры, футер */
   --surface-base: #ffffff; /* фон страницы */
   --surface-base-translucent: rgb(255 255 255 / 50%); /* [var] заливка шапки — #ffffff на 50% */
-  --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа метрики */
+  --surface-success: #028322; /* [var] заливка плитки метрики — тот же зелёный, что и текст */
+  --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа и светлой плитки метрики */
 
   /* --- Цвет: границы --- */
   --border-success-subtle: #c8e5cf; /* [pipette] обводка зелёного бейджа */
@@ -51,6 +53,10 @@
   /* [var] title/h4 — 600, 24/32 */
   --title-h4-size: 1.5rem;
   --title-h4-height: 2rem;
+  /* [var] title/h5 — 600, 20/26. Заголовки текстовых блоков на странице кейса;
+     тем же кеглем, но Medium, набран тег платформы в hero кейса. */
+  --title-h5-size: 1.25rem;
+  --title-h5-height: 1.625rem;
   /* [var] body/small — 500, 16/24 */
   --body-small-size: 1rem;
   --body-small-height: 1.5rem;
@@ -69,6 +75,7 @@
   /* --- Скругления --- */
   --radius-small: 0.25rem; /* [var] base/50 = 4 */
   --radius-control: 0.5rem; /* [pipette] кнопки и бейджи */
+  --radius-card: 0.5rem; /* [var] borderRadius/card = 8 — плитки метрик в кейсе */
   --radius-large: 1rem; /* [var] large = 16 — контейнеры мокапов, плитки футера */
 
   /* --- Сетка --- */

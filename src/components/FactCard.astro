@@ -1,0 +1,66 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+/**
+ * Плитка метрики на странице кейса: иконка, число и подпись.
+ * В макете 301×208 при поле 20px и зазоре 40px между иконкой и текстом.
+ *
+ * tone:
+ *   solid  — залитая зелёная плитка (главная метрика кейса)
+ *   subtle — светло-зелёная плитка с зелёным текстом
+ */
+interface Props {
+  value: string;
+  label: string;
+  tone?: 'solid' | 'subtle';
+  icon?: IconName;
+}
+
+const { value, label, tone = 'subtle', icon = 'send-letter' } = Astro.props;
+---
+
+<div class:list={['fact', `fact--${tone}`]}>
+  {/* Иконка в макете стоит в слоте 32px; цвет приходит через currentColor. */}
+  <Icon name={icon} size={32} />
+  <div class="fact__text">
+    <p class="fact__value">{value}</p>
+    <p class="fact__label">{label}</p>
+  </div>
+</div>
+
+<style>
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7); /* 40px между иконкой и текстом */
+    padding: 20px;
+    border-radius: var(--radius-card);
+  }
+
+  .fact__text {
+    display: grid;
+    gap: var(--space-2); /* 8px между числом и подписью */
+  }
+
+  .fact__value {
+    font-size: var(--title-h3-size);
+    font-weight: var(--weight-semibold);
+    line-height: var(--title-h3-height);
+  }
+
+  .fact__label {
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+  }
+
+  .fact--solid {
+    color: var(--text-on-success);
+    background: var(--surface-success);
+  }
+
+  .fact--subtle {
+    color: var(--text-success);
+    background: var(--surface-success-subtle);
+  }
+</style>

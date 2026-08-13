@@ -1,0 +1,64 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Список с иконкой-маркером внутри текстового блока кейса.
+ *
+ * marker:
+ *   star    — серая искра, нейтральный перечень («Действия»)
+ *   success — зелёная стрелка вверх и зелёный текст («Результат»)
+ *
+ * Маркер стоит в слоте 24px, отступ до текста уже заложен в сам файл иконки:
+ * у искры глиф 12×12 внутри слота, поэтому у строки зазора нет. У стрелки
+ * глиф шире, и в макете ей добавлены 2px.
+ */
+interface Props {
+  items: string[];
+  marker?: 'star' | 'success';
+}
+
+const { items, marker = 'star' } = Astro.props;
+const iconName = marker === 'success' ? 'up' : 'star-bullet-sparkle';
+---
+
+<ul class:list={['list', `list--${marker}`]}>
+  {
+    items.map((item) => (
+      <li class="list__item">
+        <span class="list__marker">
+          <Icon name={iconName} />
+        </span>
+        {item}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .list {
+    display: grid;
+    gap: var(--space-2); /* 8px: строки идут с шагом 32px при высоте 24px */
+    margin: 0;
+  }
+
+  .list__item {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .list__marker {
+    flex-shrink: 0;
+  }
+
+  .list--star {
+    color: var(--text-secondary);
+  }
+
+  .list--success {
+    color: var(--text-success);
+  }
+
+  .list--success .list__item {
+    gap: 2px;
+  }
+</style>

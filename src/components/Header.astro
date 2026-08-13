@@ -22,9 +22,15 @@ import { ui } from '../data/ui.ts';
     </a>
 
     <nav class="header__nav" aria-label="Основная навигация">
+      {/*
+        «Кейсы» и «Обо мне» есть только на главной, поэтому адрес абсолютный —
+        со страницы кейса такая ссылка ведёт на главную, а не в пустоту.
+        «Контакты» — это футер, он есть на каждой странице, и якорь остаётся
+        внутренним: со страницы кейса незачем уходить на главную.
+      */}
       <ul class="header__links">
-        <li><Button href="#cases" label={ui.nav.cases} variant="ghost" size="sm" /></li>
-        <li><Button href="#about" label={ui.nav.about} variant="ghost" size="sm" /></li>
+        <li><Button href="/#cases" label={ui.nav.cases} variant="ghost" size="sm" /></li>
+        <li><Button href="/#about" label={ui.nav.about} variant="ghost" size="sm" /></li>
         <li><Button href="#contacts" label={ui.nav.contacts} variant="ghost" size="sm" /></li>
       </ul>
       <Button

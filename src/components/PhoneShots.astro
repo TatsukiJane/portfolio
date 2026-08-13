@@ -1,0 +1,90 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+/**
+ * Серый контейнер с мокапами телефонов.
+ *
+ * В макете это один и тот же узел и на главной (внутри CaseCard), и в первом
+ * экране страницы кейса — поэтому компонент общий, а не скопированный.
+ *
+ * Размеры из макета: контейнер 1240×821, экран 320×693, рамка телефона 4px
+ * рисуется наружу от экрана, зазор между рамками 56px.
+ */
+interface Props {
+  shots: CollectionEntry<'cases'>['data']['shots'];
+  /**
+   * Ховер с подъёмом телефонов. Нужен там, где контейнер обещает клик
+   * (карточка на главной); на странице кейса это просто иллюстрация.
+   */
+  interactive?: boolean;
+}
+
+const { shots, interactive = false } = Astro.props;
+---
+
+<div class:list={['shots', interactive && 'shots--interactive']}>
+  {
+    shots.map((shot) => (
+      <div class="shots__device">
+        <Image src={shot.src} alt={shot.alt} width={320} height={693} />
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .shots {
+    display: flex;
+    /* Поля 60/72 и зазор 56 подобраны так, чтобы внешние края рамок
+       встали на те же позиции, что в макете. */
+    gap: 56px;
+    justify-content: center;
+    padding: 60px 72px;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-large);
+    transition: background-color 0.3s ease;
+  }
+
+  /* Рамка телефона: в макете она нарисована наружу от экрана,
+     поэтому content-box, а не border-box.
+     Скругление в макете задано экрану (40px), а CSS отсчитывает радиус
+     от внешнего края рамки — отсюда 44: внутренний радиус получается
+     ровно 40, иначе по углам остаётся заметный серп. */
+  .shots__device {
+    box-sizing: content-box;
+    width: 320px;
+    overflow: hidden;
+    background: var(--surface-base);
+    border: 4px solid var(--surface-primary);
+    border-radius: 44px;
+    transition: transform 0.3s ease;
+  }
+
+  /* Ховер: фон едва темнеет, телефоны приподнимаются лёгким каскадом слева
+     направо. Эффекта в макете нет — он добавлен как отклик на кликабельность
+     карточки кейса. Живёт здесь, а не в родителе: scoped-стили Astro не
+     достают до элементов дочернего компонента. */
+  .shots--interactive:hover {
+    background: #efefef;
+  }
+
+  .shots--interactive:hover .shots__device {
+    transform: translateY(-8px);
+  }
+
+  .shots--interactive:hover .shots__device:nth-child(2) {
+    transition-delay: 60ms;
+  }
+
+  .shots--interactive:hover .shots__device:nth-child(3) {
+    transition-delay: 120ms;
+  }
+
+  /* При отключённой анимации подпрыгивание превратилось бы в дёрганье. */
+  @media (prefers-reduced-motion: reduce) {
+    .shots--interactive:hover .shots__device {
+      transform: none;
+    }
+  }
+</style>
