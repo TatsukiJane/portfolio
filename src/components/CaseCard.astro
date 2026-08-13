@@ -10,45 +10,46 @@ import type { CollectionEntry } from 'astro:content';
  * Контейнер с экранами вынесен в PhoneShots — в макете это тот же узел,
  * что и в первом экране страницы кейса.
  *
- * Пока карточка не ссылка: страница кейса свёрстана только частично.
- * Когда она будет готова, содержимое оборачивается в <a href={`/cases/${entry.id}`}>.
+ * Карточка становится ссылкой только у кейса с описанными разделами: у кейса
+ * без них страница не собирается, и ссылка вела бы в 404. Заодно заготовка
+ * не обещает клик — ни курсором, ни ховером.
  */
 interface Props {
   entry: CollectionEntry<'cases'>;
 }
 
 const { entry } = Astro.props;
-const { title, metrics, tags, shots } = entry.data;
+const { title, metrics, tags, shots, sections } = entry.data;
+
+const href = sections.length > 0 ? `/cases/${entry.id}/` : undefined;
+/* Astro подставляет имя тега из переменной с заглавной буквы. */
+const Wrapper = href ? 'a' : 'div';
 ---
 
 <article class="case">
-  <div class="case__head">
-    <h3 class="case__title">{title}</h3>
+  <Wrapper class="case__inner" href={href}>
+    <div class="case__head">
+      <h3 class="case__title">{title}</h3>
 
-    {
-      (metrics.length > 0 || tags.length > 0) && (
-        <div class="case__badges">
-          {metrics.map((metric) => (
-            <Badge variant="success" label={`${metric.value} ${metric.label}`} />
-          ))}
-          {tags.map((tag) => (
-            <Badge variant="neutral" label={tag} />
-          ))}
-        </div>
-      )
-    }
-  </div>
+      {
+        (metrics.length > 0 || tags.length > 0) && (
+          <div class="case__badges">
+            {metrics.map((metric) => (
+              <Badge variant="success" label={`${metric.value} ${metric.label}`} />
+            ))}
+            {tags.map((tag) => (
+              <Badge variant="neutral" label={tag} />
+            ))}
+          </div>
+        )
+      }
+    </div>
 
-  {shots.length > 0 && <PhoneShots shots={shots} interactive />}
+    {shots.length > 0 && <PhoneShots shots={shots} interactive={Boolean(href)} />}
+  </Wrapper>
 </article>
 
 <style>
-  /* Курсор-указатель вместе с ховером обещают клик — когда страница кейса
-     будет готова, карточка станет ссылкой. */
-  .case {
-    cursor: pointer;
-  }
-
   .case__head {
     margin-bottom: var(--space-6); /* 32px до серого контейнера */
   }
@@ -62,5 +63,11 @@ const { title, metrics, tags, shots } = entry.data;
     display: flex;
     flex-wrap: wrap;
     gap: var(--column-gap);
+  }
+
+  /* Ссылкой становится вся карточка, поэтому обводка фокуса обводит её
+     целиком — иначе с клавиатуры непонятно, что именно выбрано. */
+  a.case__inner {
+    display: block;
   }
 </style>
