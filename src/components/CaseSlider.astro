@@ -23,7 +23,18 @@ const { title, tone = 'problem', slides } = Astro.props;
 const isSlider = slides.length > 1;
 ---
 
-<div class:list={['slider', `slider--${tone}`]} data-slider>
+{/*
+  У слайдера с несколькими слайдами роль объявлена явно: скринридер сообщает,
+  что это слайдер и какой слайд из скольких открыт. У одиночного объявлять
+  нечего — это просто ряд картинок.
+*/}
+<div
+  class:list={['slider', `slider--${tone}`]}
+  data-slider
+  role={isSlider ? 'group' : undefined}
+  aria-roledescription={isSlider ? 'слайдер' : undefined}
+  aria-label={isSlider ? (title ?? 'Экраны приложения') : undefined}
+>
   {title && <p class="slider__title">{title}</p>}
 
   {/*
@@ -33,8 +44,13 @@ const isSlider = slides.length > 1;
   */}
   <div class="slider__track" data-track>
     {
-      slides.map((slide) => (
-        <div class="slider__slide">
+      slides.map((slide, index) => (
+        <div
+          class="slider__slide"
+          role={isSlider ? 'group' : undefined}
+          aria-roledescription={isSlider ? 'слайд' : undefined}
+          aria-label={isSlider ? `${index + 1} из ${slides.length}` : undefined}
+        >
           <div class="slider__shots">
             {slide.shots.map((shot) => (
               <Mockup alt={shot.alt} src={shot.src} />
@@ -64,22 +80,29 @@ const isSlider = slides.length > 1;
   {
     isSlider && (
       <>
-        <button class="slider__nav slider__nav--prev" type="button" data-prev aria-label="Предыдущий экран">
+        {/* Стрелка «назад» на первом слайде выключена сразу: дальше состояние
+            стрелок ведёт скрипт. */}
+        <button
+          class="slider__nav slider__nav--prev"
+          type="button"
+          data-prev
+          disabled
+          aria-label="Предыдущий слайд"
+        >
           <Icon name="arrow-left" />
         </button>
-        <button class="slider__nav slider__nav--next" type="button" data-next aria-label="Следующий экран">
+        <button class="slider__nav slider__nav--next" type="button" data-next aria-label="Следующий слайд">
           <Icon name="arrow-right" />
         </button>
 
-        <div class="slider__dots" role="tablist" aria-label="Слайды">
+        <div class="slider__dots">
           {slides.map((_, index) => (
             <button
               class="slider__dot"
               type="button"
               data-dot
-              aria-label={`Слайд ${index + 1}`}
-              aria-selected={index === 0}
-              role="tab"
+              aria-label={`Слайд ${index + 1} из ${slides.length}`}
+              aria-current={index === 0 ? 'true' : undefined}
             />
           ))}
         </div>
@@ -124,12 +147,17 @@ const isSlider = slides.length > 1;
     display: none;
   }
 
+  /* Слайд занимает дорожку целиком — так шаг листания равен одному слайду.
+     min-width: 0 обязателен: без него слайд с содержимым шире дорожки
+     (проверено на четырёх экранах вместо трёх — 1368 против 1144) растёт
+     по содержимому, и следующие за ним слайды съезжают с шага листания. */
   .slider__slide {
     display: flex;
     flex: 0 0 100%;
     flex-direction: column;
     align-items: center;
     gap: var(--space-6);
+    min-width: 0;
     scroll-snap-align: center;
   }
 
@@ -199,8 +227,16 @@ const isSlider = slides.length > 1;
     transition: background-color 0.15s ease;
   }
 
-  .slider__nav:hover {
+  .slider__nav:hover:not(:disabled) {
     background: rgb(0 0 0 / 20%);
+  }
+
+  /* На крайних слайдах стрелка выключается. В макете такого состояния нет:
+     там нарисован один слайд, и дальше листать некуда. Молча неработающая
+     стрелка хуже — по ней не понять, что слайды кончились. */
+  .slider__nav:disabled {
+    opacity: 0.4;
+    cursor: default;
   }
 
   .slider__nav--prev {
@@ -225,7 +261,7 @@ const isSlider = slides.length > 1;
     border-radius: var(--radius-small);
   }
 
-  .slider__dot[aria-selected='true'] {
+  .slider__dot[aria-current] {
     background: var(--surface-primary);
   }
 </style>
@@ -241,20 +277,57 @@ const isSlider = slides.length > 1;
     const dots = [...slider.querySelectorAll<HTMLButtonElement>('[data-dot]')];
     if (!track || dots.length === 0) return;
 
-    const current = () => Math.round(track.scrollLeft / track.clientWidth);
-    const go = (index: number) => {
-      const target = Math.max(0, Math.min(dots.length - 1, index));
-      track.scrollTo({ left: target * track.clientWidth, behavior: 'smooth' });
+    const prev = slider.querySelector<HTMLButtonElement>('[data-prev]');
+    const next = slider.querySelector<HTMLButtonElement>('[data-next]');
+    const slides = [...track.children] as HTMLElement[];
+    const last = slides.length - 1;
+
+    /* Позиция слайда считается по самому слайду, а не как «номер × ширина
+       дорожки»: слайдов может быть сколько угодно, и лишний источник
+       правды о их ширине ни к чему. */
+    const offsetOf = (index: number) => slides[index].offsetLeft - slides[0].offsetLeft;
+
+    /* Ближайший к текущей прокрутке слайд: работает и когда листают колесом
+       или тачпадом, остановившись между слайдами. */
+    const current = () =>
+      slides.reduce(
+        (best, _, index) =>
+          Math.abs(offsetOf(index) - track.scrollLeft) < Math.abs(offsetOf(best) - track.scrollLeft)
+            ? index
+            : best,
+        0,
+      );
+
+    let active = -1;
+    const sync = () => {
+      const index = current();
+      if (index === active) return;
+      active = index;
+
+      dots.forEach((dot, position) =>
+        position === index ? dot.setAttribute('aria-current', 'true') : dot.removeAttribute('aria-current'),
+      );
+      if (prev) prev.disabled = index === 0;
+      if (next) next.disabled = index === last;
     };
 
-    slider.querySelector('[data-prev]')?.addEventListener('click', () => go(current() - 1));
-    slider.querySelector('[data-next]')?.addEventListener('click', () => go(current() + 1));
+    const go = (index: number) => {
+      const target = Math.max(0, Math.min(last, index));
+      track.scrollTo({
+        left: offsetOf(target),
+        /* Кому анимация мешает — тому мгновенно. */
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+      });
+    };
+
+    prev?.addEventListener('click', () => go(current() - 1));
+    next?.addEventListener('click', () => go(current() + 1));
     dots.forEach((dot, index) => dot.addEventListener('click', () => go(index)));
 
-    /* Точки следят за прокруткой, а не за нажатиями: листать можно и колесом. */
-    track.addEventListener('scroll', () => {
-      const active = current();
-      dots.forEach((dot, index) => dot.setAttribute('aria-selected', String(index === active)));
-    });
+    /* Состояние ведётся от прокрутки, а не от нажатий: листать можно и колесом.
+       Сравнение с предыдущим слайдом отсекает лишние правки атрибутов —
+       событие прокрутки приходит на каждый кадр. */
+    track.addEventListener('scroll', sync);
+    sync();
   });
 </script>
