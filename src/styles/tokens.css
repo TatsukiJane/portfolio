@@ -22,6 +22,7 @@
   --surface-primary: #0a0a0a; /* [var] surface/neutral/primary — чёрные кнопки и плитки */
   --surface-secondary: #f5f5f5; /* [var] surface/neutral/secondary — серые контейнеры, футер */
   --surface-base: #ffffff; /* фон страницы */
+  --surface-base-translucent: rgb(255 255 255 / 50%); /* [var] заливка шапки — #ffffff на 50% */
   --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа метрики */
 
   /* --- Цвет: границы --- */
@@ -59,6 +60,9 @@
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
+
+  /* --- Эффекты --- */
+  --blur-backdrop: 8px; /* [var] Background blur шапки */
 
   /* --- Скругления --- */
   --radius-small: 0.25rem; /* [var] base/50 = 4 */
