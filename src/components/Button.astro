@@ -1,0 +1,141 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+/**
+ * Кнопка-ссылка во всех начертаниях, которые встречаются в макете.
+ *
+ * variant:
+ *   primary — чёрная заливка (Telegram в hero, шапке и футере)
+ *   subtle  — серая заливка на белом фоне (LinkedIn и CV в hero)
+ *   plain   — белая заливка на сером фоне (плитки футера)
+ *   ghost   — без фона (ссылки в шапке)
+ *
+ * size:
+ *   md   — высота 56px, кнопки в hero
+ *   sm   — высота 32px, шапка
+ *   tile — плитка 152px высотой, футер
+ */
+interface Props {
+  href: string;
+  label: string;
+  /** Жирная приставка перед подписью — в макете так набрано «CV Резюме». */
+  prefix?: string;
+  icon?: IconName;
+  variant?: 'primary' | 'subtle' | 'plain' | 'ghost';
+  size?: 'md' | 'sm' | 'tile';
+  /** Открывать в новой вкладке — для внешних адресов и PDF. */
+  newTab?: boolean;
+  class?: string;
+}
+
+const {
+  href,
+  label,
+  prefix,
+  icon,
+  variant = 'subtle',
+  size = 'md',
+  newTab = false,
+  class: className,
+} = Astro.props;
+
+const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<a
+  href={href}
+  class:list={['button', `button--${variant}`, `button--${size}`, className]}
+  {...target}
+>
+  {icon && <Icon name={icon} />}
+  {/* Пробел между приставкой и подписью не виден (в flex-контейнере пробельные
+      узлы игнорируются), но без него текст копируется как «CVРезюме». */}
+  {prefix && <span class="button__prefix">{prefix}</span>}{prefix && ' '}
+  <span>{label}</span>
+</a>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+    white-space: nowrap;
+    border-radius: var(--radius-control);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  /* «CV» набрано жирным, сама подпись — обычным начертанием. */
+  .button__prefix {
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.01em;
+  }
+
+  /* --- Заливки --- */
+
+  .button--primary {
+    color: var(--text-on-color);
+    background: var(--surface-primary);
+  }
+
+  .button--primary:hover {
+    /* Чёрный осветляем — затемнять уже некуда. */
+    background: #262626;
+  }
+
+  .button--subtle {
+    color: var(--text-primary);
+    background: var(--surface-secondary);
+  }
+
+  .button--subtle:hover {
+    background: #ebebeb;
+  }
+
+  .button--plain {
+    color: var(--text-primary);
+    background: var(--surface-base);
+  }
+
+  .button--plain:hover {
+    background: #fafafa;
+  }
+
+  .button--ghost {
+    color: var(--text-primary);
+    background: transparent;
+  }
+
+  .button--ghost:hover {
+    background: var(--surface-secondary);
+  }
+
+  /* --- Размеры --- */
+
+  .button--md {
+    height: var(--control-height);
+    padding-inline: var(--space-5);
+  }
+
+  .button--sm {
+    height: var(--control-height-compact);
+    padding-inline: var(--space-3); /* 12px — ссылки навигации, ширина 73/89/97 в макете */
+  }
+
+  /* Кнопка Telegram в шапке заметно свободнее ссылок: 124px при том же тексте. */
+  .button--sm.button--primary {
+    padding-inline: var(--space-4);
+  }
+
+  /* Плитки футера: 301×152 в макете, ширину задаёт сетка. */
+  .button--tile {
+    height: 152px;
+    padding-inline: var(--space-5);
+    border-radius: var(--radius-large);
+  }
+</style>

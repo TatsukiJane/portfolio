@@ -1,0 +1,131 @@
+/* Базовые стили страницы. Компонентные стили живут в самих компонентах. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--body-small-size);
+  font-weight: var(--weight-medium);
+  line-height: var(--body-small-height);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* Этап «только десктоп»: макет свёрстан под 1360px и не сжимается.
+     Вместо ломающейся раскладки страница получает горизонтальную прокрутку.
+     Убрать вместе с добавлением мобильной вёрстки. */
+  min-width: 1360px;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--weight-semibold);
+}
+
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+/* У h1 переносы расставлены вручную (см. profile.headlineLines),
+   поэтому автоматическая балансировка строк здесь не нужна. */
+h1 {
+  font-size: var(--title-h1-size);
+  line-height: var(--title-h1-height);
+}
+
+h2 {
+  font-size: var(--title-h2-size);
+  line-height: var(--title-h2-height);
+}
+
+h3 {
+  font-size: var(--title-h3-size);
+  line-height: var(--title-h3-height);
+}
+
+h4 {
+  font-size: var(--title-h4-size);
+  line-height: var(--title-h4-height);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Фокус показываем только при навигации с клавиатуры, но показываем всегда
+   заметно — иначе страницей нельзя пользоваться без мыши. */
+:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-small);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ширина контента макета: 1240px при боковом поле 60px. */
+.container {
+  width: 100%;
+  max-width: calc(var(--container-width) + var(--container-gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+/* Видно только скринридеру — для заголовков, которых нет в макете визуально. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

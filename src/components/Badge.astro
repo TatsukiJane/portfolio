@@ -1,0 +1,62 @@
+---
+import Icon from './Icon.astro';
+
+/**
+ * Плашка под заголовком кейса.
+ *
+ * success — метрика с ростом (зелёная, со стрелкой вверх)
+ * neutral — нейтральная метка платформы, например «mobile»
+ */
+interface Props {
+  label: string;
+  variant?: 'success' | 'neutral';
+}
+
+const { label, variant = 'neutral' } = Astro.props;
+---
+
+<span class:list={['badge', `badge--${variant}`]}>
+  {
+    variant === 'success' && (
+      <span class="badge__icon">
+        <Icon name="arrow-up" />
+      </span>
+    )
+  }
+  {label}
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    height: var(--badge-height);
+    padding-inline: var(--space-4);
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+    white-space: nowrap;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+  }
+
+  /* В макете под стрелку отведено ровно 20px, а текст начинается сразу
+     за этим полем — поэтому у самой плашки зазора нет. */
+  .badge__icon {
+    display: flex;
+    justify-content: center;
+    width: 20px;
+  }
+
+  .badge--success {
+    color: var(--text-success);
+    background: var(--surface-success-subtle);
+    border-color: var(--border-success-subtle);
+  }
+
+  .badge--neutral {
+    color: var(--text-secondary);
+    background: var(--surface-base);
+    border-color: var(--border-neutral);
+  }
+</style>

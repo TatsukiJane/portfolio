@@ -1,0 +1,80 @@
+---
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import { profile } from '../data/profile.ts';
+import { ui } from '../data/ui.ts';
+
+/**
+ * Шапка: логотип с именем слева, навигация и кнопка Telegram справа.
+ * Высота 44px как в макете.
+ *
+ * Шапка липкая — в макете этого не показать, но страница длинная
+ * (в макете 4110px), и без липкой шапки навигация уезжает из поля зрения.
+ */
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="header__brand" href="/">
+      <Logo />
+      <span class="header__name">{profile.name}</span>
+    </a>
+
+    <nav class="header__nav" aria-label="Основная навигация">
+      <ul class="header__links">
+        <li><Button href="#cases" label={ui.nav.cases} variant="ghost" size="sm" /></li>
+        <li><Button href="#about" label={ui.nav.about} variant="ghost" size="sm" /></li>
+        <li><Button href="#contacts" label={ui.nav.contacts} variant="ghost" size="sm" /></li>
+      </ul>
+      <Button
+        href={profile.links.telegram}
+        label={ui.actions.telegram}
+        icon="telegram"
+        variant="primary"
+        size="sm"
+        newTab
+      />
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface-base);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+  }
+
+  .header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px; /* в макете: логотип 36px, текст с отступа 46px */
+  }
+
+  .header__name {
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+  }
+
+  .header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5); /* 24px между группой ссылок и кнопкой Telegram */
+  }
+
+  .header__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3); /* 12px */
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,92 @@
+/*
+ * Дизайн-токены из макета Figma (файл kG8kNsIubD73aGRlrvaKrv, страница Final).
+ *
+ * Значения с пометкой [var] взяты из переменных Figma напрямую.
+ * Значения с пометкой [pipette] сняты с рендеров макета — этих цветов
+ * в переменных нет, поэтому здесь они и зафиксированы, чтобы больше
+ * не подбирать их заново.
+ *
+ * Правило: компоненты не содержат литеральных цветов и размеров шрифта —
+ * только ссылки на эти переменные.
+ */
+
+:root {
+  /* --- Цвет: текст --- */
+  --text-primary: #0a0a0a; /* [var] text/neutral/primary */
+  --text-secondary: #525252; /* [pipette] подписи и нейтральный бейдж */
+  --text-tertiary: #a3a3a3; /* [var] text/neutral/tertiary */
+  --text-on-color: #ffffff; /* [var] text/onColor/primary */
+  --text-success: #028322; /* [var] text/success/primary */
+
+  /* --- Цвет: поверхности --- */
+  --surface-primary: #0a0a0a; /* [var] surface/neutral/primary — чёрные кнопки и плитки */
+  --surface-secondary: #f5f5f5; /* [var] surface/neutral/secondary — серые контейнеры, футер */
+  --surface-base: #ffffff; /* фон страницы */
+  --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа метрики */
+
+  /* --- Цвет: границы --- */
+  --border-success-subtle: #c8e5cf; /* [pipette] обводка зелёного бейджа */
+  --border-neutral: #e6e6e6; /* [pipette] обводка нейтрального бейджа */
+  --border-decorative: #f1f1f1; /* [pipette] декоративные линии в hero */
+
+  /* --- Цвет: иконки --- */
+  --icon-neutral: #1f1f1f; /* [var] icon/neutral/primary */
+  --icon-on-color: #ffffff; /* [var] icon/onColor/primary */
+
+  /* --- Типографика --- */
+  /* --font-manrope объявляет Astro (см. fonts в astro.config.mjs) */
+  --font-sans: var(--font-manrope);
+
+  /* [var] title/h1 — 600, 48/56 */
+  --title-h1-size: 3rem;
+  --title-h1-height: 3.5rem;
+  /* [var] title/h2 — 600, 40/52 */
+  --title-h2-size: 2.5rem;
+  --title-h2-height: 3.25rem;
+  /* [var] title/h3 — 600, 32/40 */
+  --title-h3-size: 2rem;
+  --title-h3-height: 2.5rem;
+  /* [var] title/h4 — 600, 24/32 */
+  --title-h4-size: 1.5rem;
+  --title-h4-height: 2rem;
+  /* [var] body/small — 500, 16/24 */
+  --body-small-size: 1rem;
+  --body-small-height: 1.5rem;
+  /* [var] label/smallStrong — 700, 16/20 */
+  --label-strong-size: 1rem;
+  --label-strong-height: 1.25rem;
+
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* --- Скругления --- */
+  --radius-small: 0.25rem; /* [var] base/50 = 4 */
+  --radius-control: 0.5rem; /* [pipette] кнопки и бейджи */
+  --radius-large: 1rem; /* [var] large = 16 — контейнеры мокапов, плитки футера */
+
+  /* --- Сетка --- */
+  --container-width: 1240px; /* ширина контента; макет 1360 при поле 60 */
+  --container-gutter: 60px;
+  --column: 614px; /* половина контейнера при зазоре 12px */
+  --column-gap: 12px;
+
+  /* --- Отступы (шкала base/* из Figma + производные) --- */
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.5rem; /* 24 */
+  --space-6: 2rem; /* 32 — base/400 */
+  --space-7: 2.5rem; /* 40 — base/500 */
+  --space-8: 3rem; /* 48 — base/600 */
+  --space-9: 3.5rem; /* 56 — base/700 */
+  --space-10: 5rem; /* 80 */
+  --space-section: 10rem; /* 160 — вертикальный ритм между секциями */
+
+  /* --- Размеры повторяющихся элементов --- */
+  --header-height: 44px;
+  --control-height: 56px; /* кнопки в hero */
+  --control-height-compact: 32px; /* кнопки в шапке */
+  --badge-height: 40px;
+}

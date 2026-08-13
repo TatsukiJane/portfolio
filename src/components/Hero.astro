@@ -1,0 +1,221 @@
+---
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import avatar from '../assets/avatar.png';
+import { profile } from '../data/profile.ts';
+import { ui } from '../data/ui.ts';
+
+/**
+ * Первый экран: заголовок, фото с ключевыми словами вокруг, блок опыта и кнопки.
+ *
+ * Вертикальный ритм взят из макета: 112 (H1) + 119 + 220 (фото) + 119 +
+ * 102 (опыт) + 48 + 56 (кнопки) = 776px высоты блока.
+ *
+ * Фото стоит по центру контейнера, а опыт и кнопки прижаты к правому краю —
+ * в макете они занимают правые 730px из 1240.
+ */
+
+/**
+ * Плашки вокруг фото. Смещения — от левого верхнего угла фото.
+ * Угол во всех четырёх плашках одинаковый по величине (15°, посчитан из
+ * габаритов повёрнутых рамок в макете), а знаки закручивают их по кругу.
+ */
+const tags = [
+  { label: profile.tags[0], x: 0, y: 11, angle: -15 },
+  { label: profile.tags[1], x: 231, y: -7, angle: 15 },
+  { label: profile.tags[2], x: 9, y: 217, angle: 15 },
+  { label: profile.tags[3], x: 218, y: 235, angle: -15 },
+];
+---
+
+<section class="hero">
+  <div class="container">
+    <h1 class="hero__title">
+      {
+        /* Пробел перед <br> не виден, но без него заголовок копируется
+           и индексируется как «дизайнердля». */
+        profile.headlineLines.map((line, index) => (
+          <>
+            {index > 0 && <>{' '}<br /></>}
+            {line}
+          </>
+        ))
+      }
+    </h1>
+
+    <div class="hero__photo">
+      {/* Две светлые линии, пересекающиеся в центре фото — декор из макета. */}
+      <div class="hero__decor" aria-hidden="true">
+        <span class="hero__line"></span>
+        <span class="hero__line hero__line--diagonal"></span>
+      </div>
+
+      <Image src={avatar} alt={`${profile.name} — фотография`} width={220} height={220} />
+
+      <p class="visually-hidden">Направления работы:</p>
+      <ul class="hero__tags">
+        {
+          tags.map((tag) => (
+            <li
+              class="hero__tag"
+              style={`--tag-x: ${tag.x}px; --tag-y: ${tag.y}px; --tag-angle: ${tag.angle}deg`}
+            >
+              {tag.label}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="hero__side" id="about">
+      <h2 class="visually-hidden">Опыт работы</h2>
+      <ul class="hero__experience">
+        {
+          profile.experience.map((entry) => (
+            <li class="hero__job">
+              <p class="hero__company">{entry.company}</p>
+              <p class="hero__detail">{entry.note}</p>
+              <p class="hero__detail">{entry.role}</p>
+              <p class="hero__detail">{entry.period}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="hero__actions">
+        <Button
+          href={profile.links.telegram}
+          label={ui.actions.telegram}
+          icon="telegram"
+          variant="primary"
+          newTab
+        />
+        <Button
+          href={profile.links.linkedin}
+          label={ui.actions.linkedin}
+          icon="linkedin"
+          variant="subtle"
+          newTab
+        />
+        <Button
+          href={profile.links.cv}
+          label={ui.actions.cv}
+          prefix={ui.actions.cvPrefix}
+          variant="subtle"
+          newTab
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    /* Шапка занимает 44px, а hero в макете начинается на 144px. */
+    padding-top: 100px;
+    padding-bottom: var(--space-section);
+    /* Декоративные линии уходят за пределы контейнера — не даём им растянуть страницу. */
+    overflow: hidden;
+  }
+
+  .hero__title {
+    max-width: 670px;
+    margin-bottom: 119px;
+  }
+
+  .hero__photo {
+    position: relative;
+    width: 220px;
+    margin-inline: auto;
+    margin-bottom: 119px;
+  }
+
+  /* --- Декоративные линии --- */
+
+  /* Точка отсчёта — центр фото: в макете обе линии пересекаются именно там.
+     z-index уводит линии под фотографию — в макете они за ней, а не поверх. */
+  .hero__decor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .hero__line {
+    position: absolute;
+    top: 0;
+    left: -100vw;
+    width: 200vw;
+    height: 1px;
+    background: var(--border-decorative);
+  }
+
+  .hero__line--diagonal {
+    transform: rotate(-30deg);
+  }
+
+  /* --- Плашки вокруг фото --- */
+
+  .hero__tags {
+    margin: 0;
+  }
+
+  .hero__tag {
+    position: absolute;
+    top: var(--tag-y);
+    left: var(--tag-x);
+    display: flex;
+    align-items: center;
+    height: var(--badge-height);
+    padding-inline: var(--space-4);
+    font-size: var(--body-small-size);
+    font-weight: var(--weight-medium);
+    line-height: var(--body-small-height);
+    white-space: nowrap;
+    background: var(--surface-base);
+    border-radius: var(--radius-control);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+    transform: translate(-50%, -50%) rotate(var(--tag-angle));
+  }
+
+  /* --- Опыт и кнопки --- */
+
+  .hero__side {
+    /* В макете этот блок шириной 730px прижат к правому краю контейнера. */
+    width: 730px;
+    margin-left: auto;
+  }
+
+  /* Колонки в макете стоят на фиксированных позициях: первая шириной 306px
+     от левого края блока, вторая — 197px начиная с 533px. Отсюда зазор 227px.
+     Прижать вторую колонку вправо нельзя: её рамка в макете шире текста. */
+  .hero__experience {
+    display: grid;
+    grid-template-columns: 306px 197px;
+    column-gap: 227px;
+    margin: 0 0 var(--space-8); /* 48px до кнопок */
+  }
+
+  .hero__job {
+    display: grid;
+    row-gap: 2px; /* строки идут с шагом 26px при высоте строки 24px */
+  }
+
+  .hero__company {
+    color: var(--text-primary);
+  }
+
+  .hero__detail {
+    color: var(--text-tertiary);
+  }
+
+  /* Три кнопки по 235.33px с зазором 12px дают ровно 730px. */
+  .hero__actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--column-gap);
+  }
+</style>

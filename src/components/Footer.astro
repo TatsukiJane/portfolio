@@ -1,0 +1,96 @@
+---
+import Button from './Button.astro';
+import { profile } from '../data/profile.ts';
+import { ui } from '../data/ui.ts';
+
+/**
+ * Футер «Контакты»: заголовок слева и три плитки-ссылки справа.
+ *
+ * Плитки стоят в сетке 2×2, где верхняя-левая ячейка намеренно пустая —
+ * в макете там ничего нет, за счёт этого блок выглядит уступом.
+ */
+---
+
+<footer class="footer" id="contacts">
+  <div class="container footer__grid">
+    <h2 class="footer__title">{ui.sections.contacts}</h2>
+
+    {/*
+      Позиция задаётся обёрткой, а не самой кнопкой: scoped-стили Astro
+      действуют на элементы этого шаблона, а класс, переданный в дочерний
+      компонент, под них не попадёт.
+    */}
+    <div class="footer__cell footer__cell--top-right">
+      <Button
+        href={profile.links.linkedin}
+        label={ui.actions.linkedin}
+        icon="linkedin"
+        variant="plain"
+        size="tile"
+        newTab
+      />
+    </div>
+    <div class="footer__cell footer__cell--bottom-mid">
+      <Button
+        href={profile.links.cv}
+        label={ui.actions.cv}
+        prefix={ui.actions.cvPrefix}
+        variant="plain"
+        size="tile"
+        newTab
+      />
+    </div>
+    <div class="footer__cell footer__cell--bottom-right">
+      <Button
+        href={profile.links.telegram}
+        label={ui.actions.telegram}
+        icon="telegram"
+        variant="primary"
+        size="tile"
+        newTab
+      />
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: var(--space-10); /* 80px сверху и снизу, как в макете */
+    background: var(--surface-secondary);
+  }
+
+  /* Колонки макета: 614 + 301 + 301 при зазоре 12px даёт ровно 1240. */
+  .footer__grid {
+    display: grid;
+    grid-template-columns: var(--column) 301px 301px;
+    grid-template-rows: 152px 152px;
+    column-gap: var(--column-gap);
+    row-gap: 10px;
+  }
+
+  .footer__title {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* display:grid растягивает кнопку на всю ячейку без обращения к её классам. */
+  .footer__cell {
+    display: grid;
+  }
+
+  /* Плитки расставлены явно: ячейка (2-я колонка, 1-й ряд) остаётся пустой. */
+  .footer__cell--top-right {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .footer__cell--bottom-mid {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .footer__cell--bottom-right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+</style>
