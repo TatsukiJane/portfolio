@@ -46,11 +46,14 @@ export const profile = {
   ] satisfies ExperienceEntry[],
 
   links: {
-    // TODO: заменить на настоящий адрес
-    telegram: 'https://t.me/username',
-    // TODO: заменить на настоящий адрес
-    linkedin: 'https://www.linkedin.com/in/username/',
-    // TODO: положить PDF в public/ и поправить путь
-    cv: '/cv.pdf',
+    telegram: 'https://t.me/TatsukiJane',
+    linkedin: 'https://www.linkedin.com/in/tatsukijane/',
+    /*
+     * Резюме лежит на Google Drive: обновляется без пересборки сайта, но
+     * открывается через просмотрщик Drive и работает, только пока файл
+     * доступен по ссылке всем. Чтобы отвязаться от Drive — положить PDF
+     * в public/ и указать здесь '/cv.pdf'.
+     */
+    cv: 'https://drive.google.com/file/d/1So8FVywlMDWmhjTqqlUq4xhW8rzZAmWw/view?usp=drive_link',
   },
 } as const;
