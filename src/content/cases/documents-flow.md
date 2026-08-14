@@ -290,7 +290,7 @@ sections:
                 height: 39.145
               - src: ../../assets/case-recipients-arrow-problem-2.svg
                 x: 622
-                y: 181.145
+                y: 112
                 width: 90
                 height: 69.145
       - type: text
@@ -372,7 +372,7 @@ sections:
                 height: 160.5
               - src: ../../assets/case-signing-arrow-problem-2.svg
                 x: 569
-                y: 425.355
+                y: 414
                 width: 143
                 height: 11.355
       - type: text
@@ -405,7 +405,7 @@ sections:
             connectors:
               - src: ../../assets/case-signing-arrow-solution-1.svg
                 x: 275.5
-                y: 291
+                y: 211
                 width: 76.5
                 height: 80
               - src: ../../assets/case-signing-arrow-solution-2.svg
