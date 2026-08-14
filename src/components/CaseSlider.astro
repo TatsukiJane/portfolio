@@ -168,12 +168,27 @@ const bleed = 2.887;
     text-align: center;
   }
 
+  /* Прилипание объявлено для случая без скрипта; со скриптом он снимает его
+     и доводит дорожку сам (см. комментарий в script). overscroll-behavior
+     держит жест внутри слайдера: дотянув дорожку до края, тачпад иначе
+     уводит браузер назад по истории. */
   .slider__track {
     display: flex;
     width: 100%;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
+  }
+
+  .slider__track--draggable {
+    cursor: grab;
+  }
+
+  .slider__track--dragging {
+    cursor: grabbing;
+    /* На случай, если выделение началось до нажатия. */
+    user-select: none;
   }
 
   .slider__track::-webkit-scrollbar {
@@ -380,10 +395,95 @@ const bleed = 2.887;
     next?.addEventListener('click', () => go(current() + 1));
     dots.forEach((dot, index) => dot.addEventListener('click', () => go(index)));
 
-    /* Состояние ведётся от прокрутки, а не от нажатий: листать можно и колесом.
-       Сравнение с предыдущим слайдом отсекает лишние правки атрибутов —
-       событие прокрутки приходит на каждый кадр. */
-    track.addEventListener('scroll', sync);
+    /*
+     * Прилипание отдаётся скрипту. В CSS правило остаётся — без скрипта
+     * дорожка прилипает сама, — но с `scroll-snap-type: mandatory` браузер
+     * возвращает её к ближайшему слайду после каждого события прокрутки,
+     * и горизонтальный жест тачпада не двигает слайдер вовсе: проверено,
+     * 720px жеста дают 0 вместо 713. Поэтому прилипание снимается, а слайдер
+     * сам доезжает до ближайшего слайда, когда прокрутка остановилась.
+     */
+    track.style.scrollSnapType = 'none';
+
+    let dragging = false;
+    let settleTimer = 0;
+
+    /* Состояние ведётся от прокрутки, а не от нажатий: листать можно колесом,
+       жестом тачпада и перетаскиванием. Сравнение с предыдущим слайдом внутри
+       sync() отсекает лишние правки атрибутов — событие прокрутки приходит
+       на каждый кадр. */
+    track.addEventListener('scroll', () => {
+      sync();
+
+      /* Пауза в 100мс переживает и инерцию тачпада, и саму доводку: пока
+         дорожка едет, событие приходит снова и таймер начинается заново.
+         Когда доводить уже нечего, go() не вызывается и цикла не выходит. */
+      clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => {
+        if (dragging) return;
+        const index = current();
+        if (Math.abs(offsetOf(index) - track.scrollLeft) > 1) go(index);
+      }, 100);
+    });
+
+    /*
+     * Перетаскивание мышью. Пальцу и перу оно не нужно — там прокрутка
+     * работает сама, а перехват её сломал бы.
+     */
+    track.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+
+      /* Отмена нажатия глушит выделение текста и перетаскивание картинок:
+         без неё вместо слайдера тянется выделение. */
+      event.preventDefault();
+
+      dragging = true;
+      const startX = event.clientX;
+      const startLeft = track.scrollLeft;
+      track.setPointerCapture(event.pointerId);
+      track.classList.add('slider__track--dragging');
+
+      const move = (moved: PointerEvent) => {
+        track.scrollLeft = startLeft - (moved.clientX - startX);
+      };
+
+      const stop = () => {
+        dragging = false;
+        track.classList.remove('slider__track--dragging');
+        track.removeEventListener('pointermove', move);
+        track.removeEventListener('pointerup', stop);
+        track.removeEventListener('pointercancel', stop);
+        go(current());
+      };
+
+      track.addEventListener('pointermove', move);
+      track.addEventListener('pointerup', stop);
+      track.addEventListener('pointercancel', stop);
+    });
+
+    /*
+     * Листание с клавиатуры. Раньше его давало само прилипание: браузер
+     * прокручивал сфокусированную дорожку до следующей точки. Прилипание
+     * снято, и без этого обработчика стрелка сдвигала бы дорожку на десяток
+     * пикселей, а доводка возвращала бы её назад.
+     */
+    const keys: Record<string, (index: number) => number> = {
+      ArrowRight: (index) => index + 1,
+      ArrowLeft: (index) => index - 1,
+      Home: () => 0,
+      End: () => last,
+    };
+
+    track.addEventListener('keydown', (event) => {
+      const step = keys[event.key];
+      if (!step || event.altKey || event.ctrlKey || event.metaKey) return;
+      event.preventDefault();
+      go(step(current()));
+    });
+
+    /* Курсор появляется только вместе со скриптом: без него тянуть нечего. */
+    track.classList.add('slider__track--draggable');
+
     sync();
   });
 </script>
