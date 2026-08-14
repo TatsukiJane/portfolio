@@ -5,17 +5,13 @@ import CaseTextBlock from './CaseTextBlock.astro';
 import FactCard from './FactCard.astro';
 import NoteBlock from './NoteBlock.astro';
 import RichText from './RichText.astro';
-import type { CaseBlock, CaseSection } from '../content.config.ts';
+import type { CaseSection } from '../content.config.ts';
 
 /**
  * Раздел страницы кейса: заголовок в левой колонке, содержимое в правой.
  *
  * Колонки макета — 614 + 12 + 614 внутри контейнера 1240, блоки в правой
  * колонке идут с шагом 80px.
- *
- * Заголовок необязателен: в макете шаги раздела «Решения» разведены на
- * отдельные блоки с пустой левой колонкой. В вёрстке это один раздел —
- * тогда заголовок держится в поле зрения на всех его шагах.
  */
 type Props = CaseSection & { terms?: Record<string, string> };
 
@@ -23,34 +19,21 @@ const { title, titleLines, blocks, terms } = Astro.props;
 const lines = titleLines ?? [title];
 
 /*
- * Блоки собираются в группы по подзаголовкам: группа тянется от одного шага
- * до другого и задаёт границы, внутри которых липнет его подзаголовок. Одним
- * списком все подзаголовки прилипли бы к одной точке и наложились друг
- * на друга — липкий элемент останавливается у края своего родителя, а не
- * у следующего такого же.
+ * Раздел из шагов заголовок не удерживает — решение владельца. Признак —
+ * подзаголовки среди блоков: в макете шаги раздела «Решения» разведены
+ * на отдельные блоки с пустой левой колонкой, и в вёрстке это один раздел
+ * длиной в 8294px.
  */
-type Group = {
-  heading?: Extract<CaseBlock, { type: 'heading' }>;
-  /* Сам подзаголовок в блоки группы не попадает — он её заголовок. */
-  blocks: Exclude<CaseBlock, { type: 'heading' }>[];
-};
-
-const groups: Group[] = [];
-for (const block of blocks) {
-  if (block.type === 'heading' || groups.length === 0) {
-    groups.push({ heading: block.type === 'heading' ? block : undefined, blocks: [] });
-  }
-  if (block.type !== 'heading') groups.at(-1)!.blocks.push(block);
-}
+const hasSteps = blocks.some((block) => block.type === 'heading');
 ---
 
 <section class="section">
   <div class="container section__grid">
     {/* Обёртка тянется на всю высоту раздела — это и есть поле, внутри
-        которого заголовок липнет: сам по себе он высотой в одну строку
-        и ездить ему было бы негде. */}
+        которого липкий заголовок ездит: сам по себе он высотой в одну
+        строку, и ездить ему было бы негде. */}
     <div class="section__aside">
-      <h2 class="section__title">
+      <h2 class:list={['section__title', !hasSteps && 'section__title--sticky']}>
         {
           lines.map((line, index) => (
             <>
@@ -64,63 +47,61 @@ for (const block of blocks) {
 
     <div class="section__content">
       {
-        groups.map((group) => (
-          <div
-            class:list={['section__group', group.heading?.gapBefore === 160 && 'section__group--apart']}
-          >
-            {group.heading && <h3 class="section__step">{group.heading.text}</h3>}
+        blocks.map((block) => {
+          if (block.type === 'note') {
+            return (
+              <NoteBlock title={block.title} text={block.text} definition={block.definition} />
+            );
+          }
 
-            {group.blocks.map((block) => {
-              if (block.type === 'note') {
-                return (
-                  <NoteBlock title={block.title} text={block.text} definition={block.definition} />
-                );
-              }
+          if (block.type === 'heading') {
+            return (
+              <h3 class:list={['section__step', block.gapBefore === 160 && 'section__step--apart']}>
+                {block.text}
+              </h3>
+            );
+          }
 
-              if (block.type === 'slider') {
-                return (
-                  <div
-                    class:list={['section__slider', block.gapBefore === 24 && 'section__slider--tight']}
-                  >
-                    <CaseSlider tone={block.tone} slides={block.slides} />
-                  </div>
-                );
-              }
+          if (block.type === 'slider') {
+            return (
+              <div class:list={['section__slider', block.gapBefore === 24 && 'section__slider--tight']}>
+                <CaseSlider tone={block.tone} slides={block.slides} />
+              </div>
+            );
+          }
 
-              if (block.type === 'metrics') {
-                const tiles = (
-                  <div class="section__metrics">
-                    {block.items.map((metric) => (
-                      <FactCard value={metric.value} label={metric.label} tone={metric.tone} />
-                    ))}
-                  </div>
-                );
+          if (block.type === 'metrics') {
+            const tiles = (
+              <div class="section__metrics">
+                {block.items.map((metric) => (
+                  <FactCard value={metric.value} label={metric.label} tone={metric.tone} />
+                ))}
+              </div>
+            );
 
-                return block.title ? (
-                  <CaseTextBlock title={block.title} titleGap={block.titleGap}>
-                    {tiles}
-                  </CaseTextBlock>
-                ) : (
-                  tiles
-                );
-              }
+            return block.title ? (
+              <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+                {tiles}
+              </CaseTextBlock>
+            ) : (
+              tiles
+            );
+          }
 
-              return (
-                <CaseTextBlock title={block.title} titleGap={block.titleGap}>
-                  {block.type === 'text' ? (
-                    block.paragraphs.map((paragraph) => (
-                      <p>
-                        <RichText text={paragraph} terms={terms} />
-                      </p>
-                    ))
-                  ) : (
-                    <BulletList items={block.items} marker={block.marker} terms={terms} />
-                  )}
-                </CaseTextBlock>
-              );
-            })}
-          </div>
-        ))
+          return (
+            <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+              {block.type === 'text' ? (
+                block.paragraphs.map((paragraph) => (
+                  <p>
+                    <RichText text={paragraph} terms={terms} />
+                  </p>
+                ))
+              ) : (
+                <BulletList items={block.items} marker={block.marker} terms={terms} />
+              )}
+            </CaseTextBlock>
+          );
+        })
       }
     </div>
   </div>
@@ -133,17 +114,18 @@ for (const block of blocks) {
     gap: var(--column-gap);
   }
 
-  /* Заголовок держится в поле зрения, пока не кончится раздел, и
-     останавливается на 40px ниже липкой шапки — вплотную к ней он бы
-     с ней слипся. В макете этого нет: там страница не прокручивается. */
   .section__title {
-    position: sticky;
-    top: calc(var(--header-height) + var(--space-7));
-    /* Поверх плашки липкого подзаголовка шага: она тянется на всю ширину
-       контейнера и накрыла бы заголовок. */
-    z-index: 2;
     font-size: var(--title-h2-size);
     line-height: var(--title-h2-height);
+  }
+
+  /* Заголовок держится в поле зрения, пока не кончится раздел, и
+     останавливается на 40px ниже липкой шапки — вплотную к ней он бы
+     с ней слипся. В макете этого нет: там страница не прокручивается.
+     Раздел из шагов заголовок не удерживает — см. `hasSteps`. */
+  .section__title--sticky {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-7));
   }
 
   /* Цвет абзацев задан здесь: они рождаются в этом шаблоне и уезжают
@@ -164,53 +146,23 @@ for (const block of blocks) {
     gap: var(--column-gap);
   }
 
-  /* Группа повторяет сетку блоков: снаружи она один её элемент, внутри —
-     такая же колонка с шагом 80, поэтому ритм макета не меняется. */
-  .section__group {
-    display: grid;
-    gap: var(--space-10);
+  .section__step {
+    color: var(--text-primary);
+    font-size: var(--title-h4-size);
+    line-height: var(--title-h4-height);
+  }
+
+  /* Первая строка первого подзаголовка встаёт на первую строку заголовка
+     раздела: у заголовка интерлиньяж 52, у подзаголовка 32, отсюда
+     (52 − 32) / 2 = 10. Дальше в разделе выравнивать уже не с чем. */
+  .section__content > .section__step:first-child {
+    margin-top: 10px;
   }
 
   /* Новый шаг внутри раздела отделён вдвое большим отступом: 80 от сетки
      блоков плюс 80 здесь. */
-  .section__group--apart {
+  .section__step--apart {
     margin-top: var(--space-10);
-  }
-
-  /* Подзаголовок шага держится в поле зрения, пока идёт его шаг: раздел
-     «Решения» — это 8000px из трёх шагов, и без этого посреди шага видно
-     только «Решения», а какой именно шаг — уже нет. Строка встаёт на 10px
-     ниже заголовка раздела, то есть ровно на его первую строку: интерлиньяж
-     заголовка 52, подзаголовка 32, отсюда (52 − 32) / 2 = 10.
-
-     Под подзаголовком проезжает содержимое своего же шага, поэтому у него
-     непрозрачная плашка. Плашка тянется на всю ширину контейнера (тем же
-     приёмом, что и слайдер) и начинается сразу под шапкой: в правой колонке
-     она вырезала бы белый угол из серого контейнера, а с зазором до шапки
-     между ними мелькала бы полоска проезжающего содержимого. Отступы,
-     которые её растят, вычтены отрицательными margin — ритм блоков остаётся
-     макетным. */
-  .section__step {
-    position: sticky;
-    top: var(--header-height);
-    z-index: 1;
-    width: calc(var(--column) * 2 + var(--column-gap));
-    padding-top: calc(var(--space-7) + 10px);
-    padding-bottom: var(--space-4);
-    padding-left: calc(var(--column) + var(--column-gap));
-    margin-top: calc((var(--space-7) + 10px) * -1);
-    margin-bottom: calc(var(--space-4) * -1);
-    margin-left: calc((var(--column) + var(--column-gap)) * -1);
-    color: var(--text-primary);
-    font-size: var(--title-h4-size);
-    line-height: var(--title-h4-height);
-    background: var(--surface-base);
-  }
-
-  /* У первого подзаголовка раздела макетные 10px уже заложены в отступ
-     плашки — своей разрядки ему не нужно. */
-  .section__group:first-child > .section__step {
-    margin-top: calc((var(--space-7) + 10px) * -1 + 10px);
   }
 
   /* Слайдер выходит из правой колонки на всю ширину контейнера. */
