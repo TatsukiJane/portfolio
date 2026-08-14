@@ -55,6 +55,10 @@ const anchor = id && `--anchor-${id}`;
     cursor: help;
     text-decoration: underline dotted;
     text-decoration-thickness: 10%;
+    /* В макете линия не прилипает к тексту: с браузерным авто-отступом она
+       цепляла нижние выносные буквы, с 3px встаёт в те же ряды пикселей,
+       что в рендере макета. */
+    text-underline-offset: 3px;
   }
 
   /* Пунктир становится сплошным — знак, что подсказка уже открыта. */

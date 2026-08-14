@@ -69,10 +69,12 @@ const { title, text, definition } = Astro.props;
     color: var(--text-primary);
   }
 
-  /* Пунктир — тот же приём, которым дальше в кейсе размечены термины. */
+  /* Пунктир — тот же приём, которым дальше в кейсе размечены термины;
+     отступ линии от текста — как у них (см. Term.astro). */
   .note__title--dotted {
     text-decoration: underline dotted;
     text-decoration-thickness: 10%;
+    text-underline-offset: 3px;
   }
 
   .note__body {
