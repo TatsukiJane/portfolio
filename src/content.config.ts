@@ -111,9 +111,6 @@ const caseBlocks = (image: SchemaContext['image']) => {
   const sliderBlock = z.object({
     type: z.literal('slider'),
 
-    /** Необязательный заголовок над экранами, по центру контейнера. */
-    title: z.string().optional(),
-
     /** problem — красные подписи («было»), solution — зелёные («стало»). */
     tone: z.enum(['problem', 'solution']).default('problem'),
 
@@ -126,6 +123,14 @@ const caseBlocks = (image: SchemaContext['image']) => {
     slides: z
       .array(
         z.object({
+          /**
+           * Заголовок слайда — по центру над экранами. В макете он нарисован
+           * снаружи слота, то есть выглядит общим для слайдера, но у каждого
+           * слайда «стало» в шаге «Подписание документа» он свой. Значит
+           * заголовок принадлежит слайду и листается вместе с ним.
+           */
+          title: z.string().optional(),
+
           shots: z
             .array(
               z.object({
@@ -136,7 +141,11 @@ const caseBlocks = (image: SchemaContext['image']) => {
             )
             .min(1),
 
-          /** Подписи под экранами — по одной на экран. */
+          /**
+           * Подписи под экранами — по одной на экран. Пустая строка оставляет
+           * место под своим экраном: в макете так набран слайд, где подпись
+           * относится только к среднему экрану.
+           */
           comments: z.array(z.string()).default([]),
 
           /**

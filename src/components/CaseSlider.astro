@@ -7,7 +7,9 @@ import type { CaseSliderBlock } from '../content.config.ts';
 /**
  * Серый контейнер с экранами и подписями к ним. В макете компонент называется
  * CaseInfoSlider (узел `4127:1297`) и имеет два флага: несколько слайдов
- * (тогда появляются стрелки и точки) и заголовок над содержимым.
+ * (тогда появляются стрелки и точки) и заголовок над содержимым. Заголовок
+ * нарисован снаружи слота, но у слайдера «стало» в шаге «Подписание
+ * документа» он на каждом слайде свой — значит принадлежит слайду.
  *
  * Изображения здесь — только сами экраны и выноски (кривые линии между
  * ними, экспортированные из макета: текста в них нет, переводу они не
@@ -19,7 +21,7 @@ import type { CaseSliderBlock } from '../content.config.ts';
  */
 type Props = Omit<CaseSliderBlock, 'type' | 'gapBefore'>;
 
-const { title, tone = 'problem', slides } = Astro.props;
+const { tone = 'problem', slides } = Astro.props;
 
 /* Управление нужно только когда листать есть что. */
 const isSlider = slides.length > 1;
@@ -44,10 +46,8 @@ const bleed = 2.887;
   data-slider
   role={isSlider ? 'group' : undefined}
   aria-roledescription={isSlider ? 'слайдер' : undefined}
-  aria-label={isSlider ? (title ?? 'Экраны приложения') : undefined}
+  aria-label={isSlider ? 'Экраны приложения' : undefined}
 >
-  {title && <p class="slider__title">{title}</p>}
-
   {/*
     Дорожка прокручивается по горизонтали с прилипанием — листать можно
     и без скрипта, колесом или тачпадом. Скрипт добавляет только стрелки
@@ -62,6 +62,8 @@ const bleed = 2.887;
           aria-roledescription={isSlider ? 'слайд' : undefined}
           aria-label={isSlider ? `${index + 1} из ${slides.length}` : undefined}
         >
+          {slide.title && <p class="slider__title">{slide.title}</p>}
+
           <div class="slider__shots">
             {slide.shots.map((shot) => (
               <Mockup alt={shot.alt} src={shot.src} />
@@ -96,9 +98,11 @@ const bleed = 2.887;
               ]}
               style={`--shots: ${slide.shots.length}`}
             >
-              {slide.comments.map((comment) => (
-                <p class="slider__comment">{comment}</p>
-              ))}
+              {slide.comments.map((comment) =>
+                /* Пустая строка — не подпись, а её место: столбец под своим
+                   экраном остаётся, но плашка не рисуется. */
+                comment ? <p class="slider__comment">{comment}</p> : <span />,
+              )}
             </div>
           )}
         </div>
