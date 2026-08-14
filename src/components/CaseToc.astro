@@ -126,12 +126,16 @@ const { items } = Astro.props;
   }
 
   .toc__row {
+    --toc-line-width: 36px;
+
     position: relative;
     display: block;
     min-height: 20px;
   }
 
   .toc__row--sub {
+    --toc-line-width: 24px;
+
     padding-left: var(--space-3);
   }
 
@@ -139,7 +143,7 @@ const { items } = Astro.props;
     position: absolute;
     top: 7px;
     left: 0;
-    width: 36px;
+    width: var(--toc-line-width);
     height: 3px;
     background: var(--surface-neutral-tertiary);
     border-radius: 5px;
@@ -147,14 +151,14 @@ const { items } = Astro.props;
     filter: blur(0);
     transition:
       opacity 300ms var(--toc-ease),
-      filter 300ms var(--toc-ease);
+      filter 300ms var(--toc-ease),
+      width 300ms var(--toc-ease);
   }
 
   /* Отступ строки — padding, но линия позиционирована абсолютно и сама
      отсчитывается от края строки, поэтому отступ повторён здесь. */
   .toc__row--sub .toc__line {
     left: var(--space-3);
-    width: 24px;
   }
 
   /* Название лежит на своём месте всегда и только проявляется: масштаба
@@ -175,8 +179,15 @@ const { items } = Astro.props;
 
   /* Название видно всегда у текущей главы и её родителя, у остальных — при
      наведении на оглавление или фокусе внутри него (клавиатуре наведение
-     недоступно). Линия в этих же состояниях убирается тем же путём, каким
-     название появлялось. */
+     недоступно). Чтобы панель не липла раскрытой после клика мышью, скрипт
+     снимает фокус со ссылки — см. blur() в обработчике клика.
+
+     Здесь нельзя :has(:focus-visible): стили от селекторов с :has()
+     Chromium применяет на наведении мгновенно, без транзишенов —
+     проверено по transitionrun, без :has() события есть, с ним нет.
+
+     Линия при превращении в текст дорастает на 40px вправо — так она
+     органичнее перетекает в строку названия; обратно — тем же путём. */
   .toc:hover .toc__label,
   .toc:focus-within .toc__label,
   .toc__row[aria-current] .toc__label,
@@ -189,6 +200,7 @@ const { items } = Astro.props;
   .toc:focus-within .toc__line,
   .toc__row[aria-current] .toc__line,
   .toc__row--trail .toc__line {
+    width: calc(var(--toc-line-width) + 40px);
     opacity: 0;
     filter: blur(4px);
   }
@@ -270,6 +282,10 @@ const { items } = Astro.props;
       const el = targets[index];
       if (!el) return;
       event.preventDefault();
+      /* После клика мышью фокус со ссылки снимается, иначе он держал бы
+         панель раскрытой. У клавиатурного клика detail = 0 — там фокус
+         остаётся, чтобы Tab продолжался с того же места. */
+      if (event.detail) row.blur();
       history.replaceState(null, '', row.hash);
       const to = Math.max(0, el.getBoundingClientRect().top + window.scrollY - TOP);
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) window.scrollTo(0, to);
