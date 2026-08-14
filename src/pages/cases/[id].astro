@@ -6,6 +6,7 @@ import CaseSection from '../../components/CaseSection.astro';
 import CaseToc from '../../components/CaseToc.astro';
 import Divider from '../../components/Divider.astro';
 import { profile } from '../../data/profile.ts';
+import { ui } from '../../data/ui.ts';
 import { slugify } from '../../utils/slug.ts';
 
 /*
@@ -60,7 +61,7 @@ const toc = sections.map((section) => ({
 
   <div class="case-body">
     {
-      sections.map((section) => (
+      sections.map((section, index) => (
         <>
           {/* Разделители лежат вне контейнера: в макете линия идёт
               от края до края окна, а не по ширине контента. */}
@@ -70,6 +71,11 @@ const toc = sections.map((section) => ({
             titleLines={section.titleLines}
             blocks={section.blocks}
             terms={terms}
+            backLink={
+              index === sections.length - 1
+                ? { href: '/', label: ui.actions.backHome }
+                : undefined
+            }
           />
         </>
       ))

@@ -1,5 +1,6 @@
 ---
 import BulletList from './BulletList.astro';
+import Button from './Button.astro';
 import CaseSlider from './CaseSlider.astro';
 import CaseTextBlock from './CaseTextBlock.astro';
 import FactCard from './FactCard.astro';
@@ -14,9 +15,14 @@ import { slugify } from '../utils/slug.ts';
  * Колонки макета — 614 + 12 + 614 внутри контейнера 1240, блоки в правой
  * колонке идут с шагом 80px.
  */
-type Props = CaseSection & { terms?: Record<string, string> };
+type Props = CaseSection & {
+  terms?: Record<string, string>;
+  /** Кнопка в левом нижнем углу раздела — у последнего раздела кейса
+      это «Назад на главную». Макета у неё нет, просьба владельца. */
+  backLink?: { href: string; label: string };
+};
 
-const { title, titleLines, blocks, terms } = Astro.props;
+const { title, titleLines, blocks, terms, backLink } = Astro.props;
 const lines = titleLines ?? [title];
 ---
 
@@ -36,6 +42,13 @@ const lines = titleLines ?? [title];
           ))
         }
       </h2>
+      {
+        backLink && (
+          <div class="section__back">
+            <Button href={backLink.href} label={backLink.label} icon="arrow-left" variant="subtle" />
+          </div>
+        )
+      }
     </div>
 
     <div class="section__content">
@@ -108,6 +121,17 @@ const lines = titleLines ?? [title];
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--column-gap);
+  }
+
+  /* Колонка заголовка тянется на высоту раздела: автополе прижимает
+     кнопку «Назад на главную» к его нижнему краю. */
+  .section__aside {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section__back {
+    margin-top: auto;
   }
 
   /* Заголовок не липкий: раньше держался в поле зрения, пока идёт раздел,
