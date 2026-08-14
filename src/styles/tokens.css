@@ -17,7 +17,7 @@
   --text-tertiary: #a3a3a3; /* [var] text/neutral/tertiary */
   --text-on-color: #ffffff; /* [var] text/onColor/primary */
   --text-success: #028322; /* [var] text/success/primary */
-  --text-on-success: #edf9f0; /* [pipette] текст и иконка на залитой зелёной плитке */
+  --text-on-success: #f7fcf9; /* [pipette] текст и иконка на залитой зелёной плитке */
   --text-tag: #161616; /* [var] текст плашек-тегов в hero — в макете задан литералом */
 
   /* --- Цвет: поверхности --- */
