@@ -1,0 +1,312 @@
+---
+import { ui } from '../data/ui.ts';
+
+/**
+ * Плавающее оглавление страницы кейса — «Навигация по кейсу» (узел 4432:10201).
+ *
+ * Колонка коротких линий у левого края окна: по строке на главу и на шаг
+ * внутри главы. Текущая глава подписана текстом (шаг — текстом с отступом,
+ * его глава при этом серая), при наведении или фокусе все линии
+ * превращаются в названия, клик плавно доводит страницу до главы.
+ *
+ * Геометрия из макета: строка 20 при зазоре 4, заголовок отбит на 12,
+ * линия 36×3 со скруглением 5, у шагов отступ 12 и линия 24. Позиция —
+ * «40 пикселей отступа слева и сверху»: сверху — от низа шапки, то есть
+ * на той же линии 84, где встают липкие заголовки разделов.
+ *
+ * Смена линии на текст — по скиллу make-interfaces-feel-better: обе лежат
+ * в разметке всегда и меняются местами через opacity + scale + blur
+ * (0 ↔ 1, 0.25 ↔ 1, 4px ↔ 0) за 300мс по cubic-bezier(0.2, 0, 0, 1).
+ * Скрытые текстом линии не мешают скринридеру: opacity не выключает
+ * названия из дерева доступности, а сами линии под aria-hidden.
+ */
+
+interface TocStep {
+  id: string;
+  title: string;
+}
+
+interface TocItem extends TocStep {
+  steps: TocStep[];
+}
+
+interface Props {
+  items: TocItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="toc" aria-label={ui.caseToc.title}>
+  <p class="toc__title" aria-hidden="true">{ui.caseToc.title}</p>
+  <ul class="toc__list">
+    {
+      items.map((item) => (
+        <li class="toc__item">
+          <a class="toc__row" href={`#${item.id}`}>
+            <span class="toc__line" aria-hidden="true" />
+            <span class="toc__label">{item.title}</span>
+          </a>
+          {item.steps.length > 0 && (
+            <ul class="toc__list">
+              {item.steps.map((step) => (
+                <li class="toc__item">
+                  <a class="toc__row toc__row--sub" href={`#${step.id}`}>
+                    <span class="toc__line" aria-hidden="true" />
+                    <span class="toc__label">{step.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  /*
+   * Оглавлению нужно свободное поле слева от контента. Самая длинная строка —
+   * «Результаты всех изменений» — дотягивается до 230px от края окна, а текст
+   * разделов начинается на (100vw − 1360) / 2 + 60 — свободные 230px
+   * появляются от окна 1700. Ниже порога оглавление спрятано: подписанная
+   * текущая глава легла бы на липкие заголовки разделов — они стоят на той же
+   * высоте 84, — а невидимые вширь строки-ссылки перехватывали бы клики.
+   */
+  .toc {
+    display: none;
+  }
+
+  @media (min-width: 1700px) {
+    .toc {
+      display: block;
+    }
+  }
+
+  .toc {
+    /* Кривая из скилла: быстрый разгон, мягкая остановка. */
+    --toc-ease: cubic-bezier(0.2, 0, 0, 1);
+
+    position: fixed;
+    /* Текст стоит в 40px от края окна и от низа шапки; поле 16 вокруг —
+       под фон раскрытого состояния, позицию текста оно не меняет. */
+    top: calc(var(--header-height) + var(--space-7) - var(--space-4));
+    left: calc(var(--space-7) - var(--space-4));
+    /* Выше липких заголовков разделов, ниже шапки (у неё 10). */
+    z-index: 1;
+    padding: var(--space-4);
+    border-radius: var(--radius-large);
+    /* Свою рамку панель не ловит: невидимые названия делают её шире линий,
+       и прозрачный угол перехватывал бы клики по краю контента. Ловят
+       только строки-ссылки. */
+    pointer-events: none;
+    background: transparent;
+    transition:
+      background-color 300ms var(--toc-ease),
+      box-shadow 300ms var(--toc-ease);
+  }
+
+  /* Раскрытая панель получает фон и тень плавающего слоя (как у подсказки
+     терминов): на окнах до ~1780px названия ложатся поверх контента, и без
+     фона они бы с ним смешались. В спеке макета панель нарисована в пустоте,
+     поэтому фона там нет. */
+  .toc:hover,
+  .toc:focus-within {
+    background: var(--surface-base);
+    box-shadow: var(--shadow-popover);
+  }
+
+  .toc__title {
+    margin-bottom: var(--space-3);
+    color: var(--text-secondary);
+    font-size: var(--body-extra-small-size);
+    line-height: var(--body-extra-small-height);
+  }
+
+  .toc__list {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  /* Вложенный список шагов должен отбиваться тем же зазором 4, что и строки. */
+  .toc__item {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .toc__row {
+    position: relative;
+    display: block;
+    min-height: 20px;
+    pointer-events: auto;
+  }
+
+  .toc__row--sub {
+    padding-left: var(--space-3);
+  }
+
+  .toc__line {
+    position: absolute;
+    top: 7px;
+    left: 0;
+    width: 36px;
+    height: 3px;
+    background: var(--surface-neutral-tertiary);
+    border-radius: 5px;
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+    transform-origin: left center;
+    transition:
+      opacity 300ms var(--toc-ease),
+      scale 300ms var(--toc-ease),
+      filter 300ms var(--toc-ease);
+  }
+
+  /* Отступ строки — padding, но линия позиционирована абсолютно и сама
+     отсчитывается от края строки, поэтому отступ повторён здесь. */
+  .toc__row--sub .toc__line {
+    left: var(--space-3);
+    width: 24px;
+  }
+
+  .toc__label {
+    display: block;
+    color: var(--text-tertiary);
+    font-size: var(--body-extra-small-size);
+    line-height: var(--body-extra-small-height);
+    white-space: nowrap;
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+    transform-origin: left center;
+    transition:
+      color 120ms ease-out,
+      opacity 300ms var(--toc-ease),
+      scale 300ms var(--toc-ease),
+      filter 300ms var(--toc-ease);
+  }
+
+  /* Название видно всегда у текущей главы и её родителя, у остальных — при
+     наведении на оглавление или фокусе внутри него (клавиатуре наведение
+     недоступно). Линия в этих же состояниях убирается тем же путём, каким
+     название появлялось. */
+  .toc:hover .toc__label,
+  .toc:focus-within .toc__label,
+  .toc__row[aria-current] .toc__label,
+  .toc__row--trail .toc__label {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+  }
+
+  .toc:hover .toc__line,
+  .toc:focus-within .toc__line,
+  .toc__row[aria-current] .toc__line,
+  .toc__row--trail .toc__line {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+
+  /* Enabled — серый, текущая глава и строка под курсором — чёрные.
+     Родитель текущего шага остаётся серым, как в макете. */
+  .toc__row[aria-current] .toc__label,
+  .toc__row:hover .toc__label,
+  .toc__row:focus-visible .toc__label {
+    color: var(--text-primary);
+  }
+</style>
+
+<script>
+  const nav = document.querySelector('.toc');
+  const rows = nav ? [...nav.querySelectorAll<HTMLAnchorElement>('a.toc__row')] : [];
+  const targets = rows.map((row) => document.getElementById(row.hash.slice(1)));
+
+  /* Родитель каждого шага — ближайшая строка-глава выше по списку. */
+  const parents = rows.map((row, index) => {
+    if (!row.classList.contains('toc__row--sub')) return -1;
+    return rows.findLastIndex((other, j) => j < index && !other.classList.contains('toc__row--sub'));
+  });
+
+  /* Линия отсчёта — 84px от верха окна: низ липкой шапки (44) плюс 40,
+     где встают липкие заголовки разделов и куда доводит клик. */
+  const TOP = 84;
+
+  let current = -2;
+
+  const apply = (next: number) => {
+    if (next === current) return;
+    current = next;
+    const trail = next >= 0 ? parents[next] : -1;
+    rows.forEach((row, index) => {
+      if (index === next) row.setAttribute('aria-current', 'location');
+      else row.removeAttribute('aria-current');
+      row.classList.toggle('toc__row--trail', index === trail);
+    });
+  };
+
+  /* Текущая глава — последняя, чьё начало поднялось выше линии отсчёта.
+     Позиции считаются с экрана на каждом шаге, а не кешируются: высоту
+     страницы меняют долетающие картинки. */
+  const update = () => {
+    let next = -1;
+    targets.forEach((el, index) => {
+      if (el && el.getBoundingClientRect().top <= TOP + 1) next = index;
+    });
+    apply(next);
+  };
+
+  /* Доводка до главы своя, а не scrollIntoView: браузерная плавная прокрутка
+     на странице в 15000px занимает больше секунды, а по макету переход
+     «плавный, но очень быстрый». Прокрутка пользователя её обрывает. */
+  let raf = 0;
+
+  const cancel = () => cancelAnimationFrame(raf);
+
+  const glide = (to: number) => {
+    cancel();
+    const from = window.scrollY;
+    const delta = to - from;
+    const started = performance.now();
+    const step = (now: number) => {
+      const part = Math.min(1, (now - started) / 350);
+      window.scrollTo(0, from + delta * (1 - (1 - part) ** 3));
+      if (part < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+
+  (['wheel', 'touchstart', 'keydown'] as const).forEach((type) => {
+    window.addEventListener(type, cancel, { passive: true });
+  });
+
+  rows.forEach((row, index) => {
+    row.addEventListener('click', (event) => {
+      const el = targets[index];
+      if (!el) return;
+      event.preventDefault();
+      history.replaceState(null, '', row.hash);
+      const to = Math.max(0, el.getBoundingClientRect().top + window.scrollY - TOP);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) window.scrollTo(0, to);
+      else glide(to);
+    });
+  });
+
+  let queued = false;
+
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      update();
+    });
+  };
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('load', schedule);
+  update();
+</script>

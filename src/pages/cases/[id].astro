@@ -3,8 +3,10 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseHero from '../../components/CaseHero.astro';
 import CaseSection from '../../components/CaseSection.astro';
+import CaseToc from '../../components/CaseToc.astro';
 import Divider from '../../components/Divider.astro';
 import { profile } from '../../data/profile.ts';
+import { slugify } from '../../utils/slug.ts';
 
 /*
  * Страница кейса собирается только у тех кейсов, где уже описаны разделы.
@@ -38,6 +40,19 @@ for (const section of sections) {
     if (block.type === 'text' && block.term) terms[block.term] = block.paragraphs[0];
   }
 }
+
+/*
+ * Оглавление: глава на раздел, шаг на подзаголовок внутри него. Названия
+ * берутся из самих глав — так велит спека макета, — а якоря CaseSection
+ * считает от тех же заголовков той же slugify, поэтому они совпадают.
+ */
+const toc = sections.map((section) => ({
+  id: slugify(section.title),
+  title: section.title,
+  steps: section.blocks
+    .filter((block) => block.type === 'heading')
+    .map((block) => ({ id: slugify(block.text), title: block.text })),
+}));
 ---
 
 <BaseLayout title={`${title} — ${profile.name}`} description={description}>
@@ -60,6 +75,8 @@ for (const section of sections) {
       ))
     }
   </div>
+
+  <CaseToc items={toc} />
 </BaseLayout>
 
 <style>
