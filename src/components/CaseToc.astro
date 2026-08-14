@@ -39,8 +39,9 @@ interface Props {
 const { items } = Astro.props;
 ---
 
+{/* Видимого заголовка у панели нет — владелец убрал; имя для скринридера
+    остаётся на самом nav. */}
 <nav class="toc" aria-label={ui.caseToc.title}>
-  <p class="toc__title" aria-hidden="true">{ui.caseToc.title}</p>
   <ul class="toc__list">
     {
       items.map((item) => (
@@ -104,15 +105,6 @@ const { items } = Astro.props;
     background: var(--surface-base);
     border-radius: var(--radius-large);
     box-shadow: 0 0 24px 16px var(--surface-base);
-  }
-
-  /* В спеке заголовок цвета text/neutral/secondary (#525252) — владелец
-     сменил на tertiary, чтобы он не спорил с названием текущей главы. */
-  .toc__title {
-    margin-bottom: var(--space-3);
-    color: var(--text-tertiary);
-    font-size: var(--body-extra-small-size);
-    line-height: var(--body-extra-small-height);
   }
 
   .toc__list {
