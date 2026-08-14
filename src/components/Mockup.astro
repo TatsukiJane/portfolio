@@ -29,7 +29,7 @@ const { alt, src } = Astro.props;
 <div class="mockup">
   {
     src ? (
-      <Image src={src} alt={alt} width={280} height={616} densities={[1, 2]} />
+      <Image src={src} alt={alt} width={288} height={624} densities={[1, 2]} />
     ) : (
       <p class="mockup__placeholder">{alt}</p>
     )
@@ -38,6 +38,7 @@ const { alt, src } = Astro.props;
 
 <style>
   .mockup {
+    position: relative;
     box-sizing: border-box;
     width: 288px;
     height: 624px;
@@ -47,9 +48,17 @@ const { alt, src } = Astro.props;
     border-radius: 36px;
   }
 
+  /* Экран лежит ПОД рамкой, а не внутри неё: в макете обводка мокапа
+     нарисована поверх картинки, поэтому картинка занимает все 288×624,
+     а видно из неё 280×616. Проверено по масштабу содержимого в рендере
+     макета — 0.2497, то есть 288/1152, а не 280/1152 и не 616/2498.
+     Отсюда и размер экспорта: 2× от рамки, 576×1248. */
   .mockup :global(img) {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: -4px;
+    /* Общий сброс держит `max-width: 100%`, а он считается от места внутри
+       рамки (280) и зажимал бы картинку — ей же нужно быть шире его. */
+    max-width: none;
     object-fit: cover;
   }
 
