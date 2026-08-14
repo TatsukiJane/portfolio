@@ -15,10 +15,12 @@ import { ui } from '../data/ui.ts';
  * на той же линии 84, где встают липкие заголовки разделов.
  *
  * Смена линии на текст — по скиллу make-interfaces-feel-better: обе лежат
- * в разметке всегда и меняются местами через opacity + scale + blur
- * (0 ↔ 1, 0.25 ↔ 1, 4px ↔ 0) за 300мс по cubic-bezier(0.2, 0, 0, 1).
- * Скрытые текстом линии не мешают скринридеру: opacity не выключает
- * названия из дерева доступности, а сами линии под aria-hidden.
+ * в разметке всегда и меняются местами через opacity + blur (0 ↔ 1,
+ * 4px ↔ 0) за 300мс по cubic-bezier(0.2, 0, 0, 1). Масштаба (scale) здесь
+ * нет — решение владельца: текст должен проявляться на своём месте,
+ * а не растягиваться из точки. Скрытые текстом линии не мешают
+ * скринридеру: opacity не выключает названия из дерева доступности,
+ * а сами линии под aria-hidden.
  */
 
 interface TocStep {
@@ -68,17 +70,18 @@ const { items } = Astro.props;
 <style>
   /*
    * Оглавлению нужно свободное поле слева от контента. Самая длинная строка —
-   * «Результаты всех изменений» — дотягивается до 230px от края окна, а текст
-   * разделов начинается на (100vw − 1360) / 2 + 60 — свободные 230px
-   * появляются от окна 1700. Ниже порога оглавление спрятано: подписанная
-   * текущая глава легла бы на липкие заголовки разделов — они стоят на той же
-   * высоте 84, — а невидимые вширь строки-ссылки перехватывали бы клики.
+   * «Результаты всех изменений» — дотягивается до 230px от края окна, вуаль
+   * гаснет к 270, а текст разделов начинается на (100vw − 1360) / 2 + 60 —
+   * свободные 270px появляются от окна 1780. Ниже порога оглавление спрятано:
+   * подписанная текущая глава легла бы на липкие заголовки разделов — они
+   * стоят на той же высоте 84, — а вуаль и невидимые вширь строки-ссылки
+   * накрывали бы контент.
    */
   .toc {
     display: none;
   }
 
-  @media (min-width: 1700px) {
+  @media (min-width: 1780px) {
     .toc {
       display: block;
     }
@@ -89,32 +92,19 @@ const { items } = Astro.props;
     --toc-ease: cubic-bezier(0.2, 0, 0, 1);
 
     position: fixed;
-    /* Текст стоит в 40px от края окна и от низа шапки; поле 16 вокруг —
-       под фон раскрытого состояния, позицию текста оно не меняет. */
-    top: calc(var(--header-height) + var(--space-7) - var(--space-4));
-    left: calc(var(--space-7) - var(--space-4));
+    /* «40 пикселей отступа слева и сверху»; сверху — от низа шапки. */
+    top: calc(var(--header-height) + var(--space-7));
+    left: var(--space-7);
     /* Выше липких заголовков разделов, ниже шапки (у неё 10). */
     z-index: 1;
-    padding: var(--space-4);
-    border-radius: var(--radius-large);
-    /* Свою рамку панель не ловит: невидимые названия делают её шире линий,
-       и прозрачный угол перехватывал бы клики по краю контента. Ловят
-       только строки-ссылки. */
-    pointer-events: none;
-    background: transparent;
-    transition:
-      background-color 300ms var(--toc-ease),
-      box-shadow 300ms var(--toc-ease);
-  }
-
-  /* Раскрытая панель получает фон и тень плавающего слоя (как у подсказки
-     терминов): на окнах до ~1780px названия ложатся поверх контента, и без
-     фона они бы с ним смешались. В спеке макета панель нарисована в пустоте,
-     поэтому фона там нет. */
-  .toc:hover,
-  .toc:focus-within {
+    /* Вуаль: белая подложка с мягким краем (16 сплошных + 24 растворения).
+       На белой странице её не видно — заметна она только тем, что гасит
+       разделители, проходящие под оглавлением: без неё линии глав визуально
+       смешивались с линией разделителя. Заодно панель ловит курсор целиком,
+       и в зазорах между строками раскрытое состояние не мигает. */
     background: var(--surface-base);
-    box-shadow: var(--shadow-popover);
+    border-radius: var(--radius-large);
+    box-shadow: 0 0 24px 16px var(--surface-base);
   }
 
   .toc__title {
@@ -139,7 +129,6 @@ const { items } = Astro.props;
     position: relative;
     display: block;
     min-height: 20px;
-    pointer-events: auto;
   }
 
   .toc__row--sub {
@@ -155,12 +144,9 @@ const { items } = Astro.props;
     background: var(--surface-neutral-tertiary);
     border-radius: 5px;
     opacity: 1;
-    scale: 1;
     filter: blur(0);
-    transform-origin: left center;
     transition:
       opacity 300ms var(--toc-ease),
-      scale 300ms var(--toc-ease),
       filter 300ms var(--toc-ease);
   }
 
@@ -171,6 +157,8 @@ const { items } = Astro.props;
     width: 24px;
   }
 
+  /* Название лежит на своём месте всегда и только проявляется: масштаба
+     в переходе нет намеренно, с ним текст «растягивался» из точки. */
   .toc__label {
     display: block;
     color: var(--text-tertiary);
@@ -178,13 +166,10 @@ const { items } = Astro.props;
     line-height: var(--body-extra-small-height);
     white-space: nowrap;
     opacity: 0;
-    scale: 0.25;
     filter: blur(4px);
-    transform-origin: left center;
     transition:
       color 120ms ease-out,
       opacity 300ms var(--toc-ease),
-      scale 300ms var(--toc-ease),
       filter 300ms var(--toc-ease);
   }
 
@@ -197,7 +182,6 @@ const { items } = Astro.props;
   .toc__row[aria-current] .toc__label,
   .toc__row--trail .toc__label {
     opacity: 1;
-    scale: 1;
     filter: blur(0);
   }
 
@@ -206,7 +190,6 @@ const { items } = Astro.props;
   .toc__row[aria-current] .toc__line,
   .toc__row--trail .toc__line {
     opacity: 0;
-    scale: 0.25;
     filter: blur(4px);
   }
 
