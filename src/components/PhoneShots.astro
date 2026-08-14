@@ -27,7 +27,9 @@ const { shots, interactive = false } = Astro.props;
   {
     shots.map((shot) => (
       <div class="shots__device">
-        <Image src={shot.src} alt={shot.alt} width={320} height={693} />
+        {/* densities: без него Astro отдаёт одну картинку ровно в width,
+            и на retina исходник 640×1386 ужимался бы до 320 — впустую. */}
+        <Image src={shot.src} alt={shot.alt} width={320} height={693} densities={[1, 2]} />
       </div>
     ))
   }
