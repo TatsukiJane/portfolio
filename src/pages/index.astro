@@ -8,9 +8,23 @@ import { profile } from '../data/profile.ts';
 import { ui } from '../data/ui.ts';
 
 const cases = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
+
+/*
+ * Структурированные данные для поисковиков: кто владелец сайта и где его
+ * профили. Только на главной — она и есть страница о человеке.
+ */
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: 'Продуктовый дизайнер',
+  url: Astro.site?.href,
+  sameAs: [profile.links.linkedin, profile.links.telegram],
+});
 ---
 
 <BaseLayout title={`${profile.name}. Продуктовый дизайнер`}>
+  <script is:inline type="application/ld+json" set:html={jsonLd} />
   <Hero />
   <Divider />
 

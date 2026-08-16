@@ -15,13 +15,20 @@ interface Props {
    * чтобы исключение не пришлось зашивать в компонент.
    */
   titleGap?: number;
+  /**
+   * Уровень заголовка в структуре документа. Блоки, стоящие после
+   * подзаголовка шага (он h3), логически на уровень ниже — h4. На вид
+   * это не влияет: кегль задаёт класс, а не тег.
+   */
+  headingLevel?: 3 | 4;
 }
 
-const { title, titleGap = 8 } = Astro.props;
+const { title, titleGap = 8, headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as const;
 ---
 
 <div class="text-block" style={`--title-gap: ${titleGap}px`}>
-  <h3 class="text-block__title">{title}</h3>
+  <Heading class="text-block__title">{title}</Heading>
   <div class="text-block__content">
     <slot />
   </div>

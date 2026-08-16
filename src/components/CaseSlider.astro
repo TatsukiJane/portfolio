@@ -338,11 +338,21 @@ const bleed = 2.887;
   }
 
   .slider__dot {
+    position: relative;
     width: 8px;
     height: 8px;
     padding: 0;
     background: var(--surface-neutral-tertiary);
     border-radius: var(--radius-small);
+  }
+
+  /* Зона нажатия больше самой точки: 8×8 — слишком мелкая цель. По бокам
+     запас меньше, чтобы зоны соседних точек не перекрывались (между
+     точками 6px). Псевдоэлемент ловит клики, не меняя раскладку. */
+  .slider__dot::after {
+    content: '';
+    position: absolute;
+    inset: -8px -3px;
   }
 
   .slider__dot[aria-current] {

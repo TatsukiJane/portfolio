@@ -44,7 +44,8 @@ const lines = titleLines ?? [title];
       {tags.length > 0 && <p class="hero__tags">{tags.join(', ')}</p>}
     </div>
 
-    {shots.length > 0 && <PhoneShots shots={shots} />}
+    {/* eager: контейнер с экранами — в видимой области и LCP страницы. */}
+    {shots.length > 0 && <PhoneShots shots={shots} eager />}
   </div>
 </section>
 

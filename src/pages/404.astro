@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import { profile } from '../data/profile.ts';
+import { ui } from '../data/ui.ts';
+
+/**
+ * Страница 404. В макете её нет: без неё Vercel отдаёт голый текст
+ * «NOT_FOUND» без шапки и навигации. Собрана из готового: типографика
+ * заголовков, кнопка «Назад на главную» — та же, что в конце кейса.
+ *
+ * Vercel подхватывает dist/404.html для несуществующих адресов сам,
+ * настраивать ничего не нужно.
+ */
+---
+
+<BaseLayout title={`Страница не найдена — ${profile.name}`}>
+  {/* Как и первый экран главной: блок в высоту окна, содержимое по центру. */}
+  <section class="not-found">
+    <div class="container">
+      <p class="not-found__code" aria-hidden="true">404</p>
+      <h1 class="not-found__title">Страница не найдена</h1>
+      <p class="not-found__text">
+        Такой страницы нет — возможно, ссылка устарела или в адресе опечатка.
+      </p>
+      <div class="not-found__action">
+        <Button href="/" label={ui.actions.backHome} icon="arrow-left" variant="primary" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    min-height: calc(100dvh - var(--header-height));
+    padding-block: var(--space-10);
+    text-align: center;
+  }
+
+  /* Автополя вместо align-items: при низком окне блок прижимается к верху,
+     а не вылезает под шапку — тот же приём, что у hero главной. */
+  .not-found > .container {
+    margin-block: auto;
+  }
+
+  .not-found__code {
+    color: var(--text-tertiary);
+    font-size: var(--title-h2-size);
+    font-weight: var(--weight-semibold);
+    line-height: var(--title-h2-height);
+  }
+
+  .not-found__title {
+    margin-top: var(--space-2);
+  }
+
+  .not-found__text {
+    margin-top: var(--space-4);
+    color: var(--text-secondary);
+  }
+
+  .not-found__action {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-8);
+  }
+</style>

@@ -18,9 +18,16 @@ interface Props {
    * (карточка на главной); на странице кейса это просто иллюстрация.
    */
   interactive?: boolean;
+  /**
+   * Грузить экраны сразу и с высоким приоритетом. Нужно первому экрану
+   * страницы кейса: он в видимой области, и это самый крупный её элемент
+   * (LCP) — ленивая загрузка там откладывает главную картинку страницы.
+   * Карточкам на главной не нужно: они ниже сгиба, там lazy правильный.
+   */
+  eager?: boolean;
 }
 
-const { shots, interactive = false } = Astro.props;
+const { shots, interactive = false, eager = false } = Astro.props;
 ---
 
 <div class:list={['shots', interactive && 'shots--interactive']}>
@@ -29,7 +36,15 @@ const { shots, interactive = false } = Astro.props;
       <div class="shots__device">
         {/* densities: без него Astro отдаёт одну картинку ровно в width,
             и на retina исходник 640×1386 ужимался бы до 320 — впустую. */}
-        <Image src={shot.src} alt={shot.alt} width={320} height={693} densities={[1, 2]} />
+        <Image
+          src={shot.src}
+          alt={shot.alt}
+          width={320}
+          height={693}
+          densities={[1, 2]}
+          loading={eager ? 'eager' : undefined}
+          fetchpriority={eager ? 'high' : undefined}
+        />
       </div>
     ))
   }

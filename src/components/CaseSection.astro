@@ -24,6 +24,18 @@ type Props = CaseSection & {
 
 const { title, titleLines, blocks, terms, backLink } = Astro.props;
 const lines = titleLines ?? [title];
+
+/*
+ * Уровни заголовков блоков: раздел — h2, подзаголовок шага — h3, поэтому
+ * блоки после него логически на уровень ниже — h4. До первого шага (и в
+ * разделах без шагов) блоки остаются h3. Визуально уровень ни на что
+ * не влияет — кегль задаёт класс.
+ */
+let seenStep = false;
+const headingLevels = blocks.map((block) => {
+  if (block.type === 'heading') seenStep = true;
+  return seenStep ? (4 as const) : (3 as const);
+});
 ---
 
 {/* Якоря раздела и шагов считаются из их заголовков — по ним ведёт
@@ -53,7 +65,7 @@ const lines = titleLines ?? [title];
 
     <div class="section__content">
       {
-        blocks.map((block) => {
+        blocks.map((block, index) => {
           if (block.type === 'note') {
             return (
               <NoteBlock title={block.title} text={block.text} definition={block.definition} />
@@ -89,7 +101,11 @@ const lines = titleLines ?? [title];
             );
 
             return block.title ? (
-              <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+              <CaseTextBlock
+                title={block.title}
+                titleGap={block.titleGap}
+                headingLevel={headingLevels[index]}
+              >
                 {tiles}
               </CaseTextBlock>
             ) : (
@@ -98,7 +114,11 @@ const lines = titleLines ?? [title];
           }
 
           return (
-            <CaseTextBlock title={block.title} titleGap={block.titleGap}>
+            <CaseTextBlock
+              title={block.title}
+              titleGap={block.titleGap}
+              headingLevel={headingLevels[index]}
+            >
               {block.type === 'text' ? (
                 block.paragraphs.map((paragraph) => (
                   <p>

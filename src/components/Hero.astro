@@ -59,13 +59,17 @@ const tags = [
       </div>
 
       {/* densities: фото лежит в 440×440, то есть ровно в двух плотностях;
-          без srcset Astro отдал бы только 220 и на retina оно бы мылило. */}
+          без srcset Astro отдал бы только 220 и на retina оно бы мылило.
+          eager: фото в видимой области, ленивая загрузка его только
+          откладывала бы. */}
       <Image
         src={avatar}
         alt={`${profile.name} — фотография`}
         width={220}
         height={220}
         densities={[1, 2]}
+        loading="eager"
+        fetchpriority="high"
       />
 
       <p class="visually-hidden">Направления работы:</p>

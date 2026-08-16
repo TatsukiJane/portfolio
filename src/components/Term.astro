@@ -13,8 +13,11 @@
  *
  * Без JS: показ на :hover и :focus-visible. Термин получает tabindex, иначе
  * определение было бы недоступно с клавиатуры, а aria-describedby связывает
- * его с плашкой для скринридера.
+ * его с плашкой для скринридера. Скрипт ниже добавляет только закрытие
+ * по Escape (WCAG 1.4.13) — без него подсказка работает, но не закрывается.
  */
+import { nextUid } from '../utils/uid.ts';
+
 interface Props {
   /**
    * Без определения термин остаётся подчёркнутым, но подсказки не обещает:
@@ -24,7 +27,8 @@ interface Props {
 }
 
 const { definition } = Astro.props;
-const id = definition ? `term-${crypto.randomUUID().slice(0, 8)}` : undefined;
+/* Счётчик, а не randomUUID: случайные id меняли HTML при каждой сборке. */
+const id = definition ? `term-${nextUid()}` : undefined;
 /* Имя якоря уникально на каждый термин: одно имя на несколько элементов
    в CSS anchor positioning разрешается в последний из них. */
 const anchor = id && `--anchor-${id}`;
@@ -130,8 +134,10 @@ const anchor = id && `--anchor-${id}`;
     }
   }
 
-  .term:hover .term__tip,
-  .term:focus-visible .term__tip {
+  /* Дизмисс Escape'ом сильнее ховера и фокуса: пока класс на термине,
+     подсказка закрыта; уход курсора или фокуса снимает класс (см. скрипт). */
+  .term:hover:not(.term--dismissed) .term__tip,
+  .term:focus-visible:not(.term--dismissed) .term__tip {
     display: block;
     opacity: 1;
     transform: translateY(0);
@@ -167,3 +173,25 @@ const anchor = id && `--anchor-${id}`;
     box-shadow: var(--shadow-popover);
   }
 </style>
+
+<script>
+  /*
+   * Закрытие подсказки по Escape — требование WCAG 1.4.13: открытое по
+   * наведению или фокусу содержимое должно закрываться, не сдвигая ни
+   * курсор, ни фокус. Показ работает без скрипта, на чистом CSS; здесь
+   * только дизмисс: Escape вешает класс, а уход курсора или фокуса его
+   * снимает — при следующем наведении подсказка открывается как обычно.
+   */
+  const terms = document.querySelectorAll<HTMLElement>('.term[aria-describedby]');
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    terms.forEach((term) => term.classList.add('term--dismissed'));
+  });
+
+  terms.forEach((term) => {
+    for (const type of ['pointerleave', 'focusout'] as const) {
+      term.addEventListener(type, () => term.classList.remove('term--dismissed'));
+    }
+  });
+</script>
