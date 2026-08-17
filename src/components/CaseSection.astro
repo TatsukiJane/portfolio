@@ -18,7 +18,7 @@ import { slugify } from '../utils/slug.ts';
 type Props = CaseSection & {
   terms?: Record<string, string>;
   /** Кнопка в левом нижнем углу раздела — у последнего раздела кейса
-      это «Назад на главную». Макета у неё нет, просьба владельца. */
+      это «Назад на главную» (в макете узел `4449:10110`). */
   backLink?: { href: string; label: string };
 };
 
@@ -57,7 +57,13 @@ const headingLevels = blocks.map((block) => {
       {
         backLink && (
           <div class="section__back">
-            <Button href={backLink.href} label={backLink.label} icon="arrow-left" variant="subtle" />
+            <Button
+              href={backLink.href}
+              label={backLink.label}
+              icon="arrow-back"
+              variant="text"
+              size="bare"
+            />
           </div>
         )
       }
@@ -144,13 +150,18 @@ const headingLevels = blocks.map((block) => {
   }
 
   /* Колонка заголовка тянется на высоту раздела: автополе прижимает
-     кнопку «Назад на главную» к его нижнему краю. */
+     кнопку «Назад на главную» к его нижнему краю — в макете она стоит
+     на 486 при высоте раздела 506, то есть ровно по нижней кромке. */
   .section__aside {
     display: flex;
     flex-direction: column;
   }
 
+  /* Обёртка — флекс, а не блок: кнопка внутри inline-flex, и в строке под
+     ней оставалось бы место под свисающие буквы (6px), из-за которого она
+     не доходила до нижней кромки раздела. Флекс-элемент строки не образует. */
   .section__back {
+    display: flex;
     margin-top: auto;
   }
 

@@ -8,19 +8,21 @@ import Icon, { type IconName } from './Icon.astro';
  *   primary — чёрная заливка (Telegram в hero, шапке и футере)
  *   subtle  — серая заливка на белом фоне (LinkedIn и CV в hero)
  *   plain   — белая заливка на сером фоне (плитки футера)
- *   ghost   — без фона (ссылки в шапке)
+ *   ghost   — без фона, подпись чёрная (ссылки в шапке)
+ *   text    — без фона, подпись серая («Назад на главную» в конце кейса)
  *
  * size:
  *   md   — высота 56px, кнопки в hero
  *   sm   — высота 32px, шапка
  *   tile — плитка 152px высотой, футер
+ *   bare — без полей, высота в строку (20px); слот иконки 20 вместо 24
  */
 interface Props {
   href: string;
   label: string;
   icon?: IconName;
-  variant?: 'primary' | 'subtle' | 'plain' | 'ghost';
-  size?: 'md' | 'sm' | 'tile';
+  variant?: 'primary' | 'subtle' | 'plain' | 'ghost' | 'text';
+  size?: 'md' | 'sm' | 'tile' | 'bare';
   /** Открывать в новой вкладке — для внешних адресов и PDF. */
   newTab?: boolean;
   class?: string;
@@ -44,7 +46,9 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
   class:list={['button', `button--${variant}`, `button--${size}`, className]}
   {...target}
 >
-  {icon && <Icon name={icon} />}
+  {/* Слот иконки в макете везде 24, и только у bare-кнопки 20 — scoped-стили
+      Astro до svg внутри Icon не достают, поэтому размер идёт пропом. */}
+  {icon && <Icon name={icon} size={size === 'bare' ? 20 : undefined} />}
   <span class="button__label">{label}</span>
 </a>
 
@@ -119,7 +123,21 @@ const target = newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {};
     background: var(--surface-secondary);
   }
 
-  /* --- Размеры --- */
+  /* В макете подпись и иконка серые (text/neutral/tertiary). Ховера у кнопки
+     в макете нет — она ссылка, поэтому по наведению подпись чернеет. */
+  .button--text {
+    color: var(--text-tertiary);
+    background: transparent;
+  }
+
+  .button--text:hover {
+    color: var(--text-primary);
+  }
+
+  /* --- Размеры ---
+     Правил тут нет только у bare: в макете это 174×20 без полей, а 20 —
+     интерлиньяж подписи, он и держит высоту. Весь размер и сводится к тому,
+     что полей и высоты от md/sm/tile у кнопки не появляется. */
 
   .button--md {
     height: var(--control-height);
