@@ -26,10 +26,13 @@ import type { CaseSliderBlock } from '../content.config.ts';
  */
 type Props = Omit<CaseSliderBlock, 'type' | 'gapBefore'>;
 
-const { tone = 'problem', device = 'phone', slides } = Astro.props;
+const { tone = 'problem', device = 'phone', controls = 'auto', slides } = Astro.props;
 
-/* Управление нужно только когда листать есть что. */
-const isSlider = slides.length > 1;
+/*
+ * Управление нужно, когда листать есть что, — либо когда слайдер заранее
+ * держит под него место (`controls: always`), потому что экраны ещё приедут.
+ */
+const hasControls = controls === 'always' || slides.length > 1;
 
 /*
  * Вынос обводки в экспортированных SVG-выносках: линия рисуется по рамке
@@ -42,16 +45,16 @@ const bleed = 2.887;
 ---
 
 {/*
-  У слайдера с несколькими слайдами роль объявлена явно: скринридер сообщает,
-  что это слайдер и какой слайд из скольких открыт. У одиночного объявлять
-  нечего — это просто ряд картинок.
+  У слайдера с управлением роль объявлена явно: скринридер сообщает, что это
+  слайдер и какой слайд из скольких открыт. У одиночного без управления
+  объявлять нечего — это просто картинка.
 */}
 <div
   class:list={['slider', `slider--${tone}`]}
   data-slider
-  role={isSlider ? 'group' : undefined}
-  aria-roledescription={isSlider ? 'слайдер' : undefined}
-  aria-label={isSlider ? 'Экраны приложения' : undefined}
+  role={hasControls ? 'group' : undefined}
+  aria-roledescription={hasControls ? 'слайдер' : undefined}
+  aria-label={hasControls ? 'Экраны приложения' : undefined}
 >
   {/*
     Дорожка прокручивается по горизонтали с прилипанием — листать можно
@@ -63,9 +66,9 @@ const bleed = 2.887;
       slides.map((slide, index) => (
         <div
           class="slider__slide"
-          role={isSlider ? 'group' : undefined}
-          aria-roledescription={isSlider ? 'слайд' : undefined}
-          aria-label={isSlider ? `${index + 1} из ${slides.length}` : undefined}
+          role={hasControls ? 'group' : undefined}
+          aria-roledescription={hasControls ? 'слайд' : undefined}
+          aria-label={hasControls ? `${index + 1} из ${slides.length}` : undefined}
         >
           {slide.title && <p class="slider__title">{slide.title}</p>}
 
@@ -82,7 +85,11 @@ const bleed = 2.887;
                 экраном нет, и в макете они набраны поверх него. */}
             {slide.callouts.map((callout) => (
               <p
-                class="slider__comment slider__comment--pinned"
+                class:list={[
+                  'slider__comment',
+                  'slider__comment--pinned',
+                  callout.align === 'center' && 'slider__comment--center',
+                ]}
                 style={`left: ${callout.x}px; top: ${callout.y}px; width: ${callout.width}px`}
               >
                 {callout.text}
@@ -131,10 +138,10 @@ const bleed = 2.887;
   </div>
 
   {
-    isSlider && (
+    hasControls && (
       <>
-        {/* Стрелка «назад» на первом слайде выключена сразу: дальше состояние
-            стрелок ведёт скрипт. */}
+        {/* Стрелка «назад» на первом слайде выключена сразу, дальше состояние
+            ведёт скрипт; у слайдера с единственным слайдом выключены обе. */}
         <button
           class="slider__nav slider__nav--prev"
           type="button"
@@ -144,7 +151,13 @@ const bleed = 2.887;
         >
           <Icon name="arrow-left" />
         </button>
-        <button class="slider__nav slider__nav--next" type="button" data-next aria-label="Следующий слайд">
+        <button
+          class="slider__nav slider__nav--next"
+          type="button"
+          data-next
+          disabled={slides.length === 1}
+          aria-label="Следующий слайд"
+        >
           <Icon name="arrow-right" />
         </button>
 
@@ -250,10 +263,16 @@ const bleed = 2.887;
     align-items: center;
   }
 
+  /* Овал обводит элемент экрана и повторяет цвет подписей своего слайдера:
+     красный у «было», зелёный у «стало» (проверено пипеткой по рендеру). */
   .slider__highlight {
     position: absolute;
     border: 1px solid var(--border-comment-problem);
     border-radius: 50%;
+  }
+
+  .slider--solution .slider__highlight {
+    border-color: var(--border-comment-solution);
   }
 
   /* Выноска — декорация: курсор и клики сквозь неё проходят к экрану. */
@@ -305,6 +324,12 @@ const bleed = 2.887;
      у неё та же, что у выделений и выносок. */
   .slider__comment--pinned {
     position: absolute;
+  }
+
+  /* Одна подпись в макете набрана по центру — там она подписывает элемент
+     под собой, а не сбоку. */
+  .slider__comment--center {
+    text-align: center;
   }
 
   .slider--problem .slider__comment {
