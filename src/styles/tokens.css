@@ -19,8 +19,6 @@
   --text-success: #028322; /* [var] text/success/primary */
   --text-on-success: #f7fcf9; /* [pipette] текст и иконка на залитой зелёной плитке */
   --text-tag: #161616; /* [var] текст плашек-тегов в hero — в макете задан литералом */
-  --text-quote: #a37513; /* [pipette] цитата респондента в плитке метрики */
-  --text-quote-label: #9e6c00; /* [pipette] подпись под цитатой — она темнее самой цитаты */
 
   /* --- Цвет: поверхности --- */
   --surface-primary: #0a0a0a; /* [var] surface/neutral/primary — чёрные кнопки и плитки */
@@ -30,7 +28,6 @@
   --surface-success: #028322; /* [var] заливка плитки метрики — тот же зелёный, что и текст */
   --surface-success-subtle: #edf9f0; /* [pipette] фон зелёного бейджа и светлой плитки метрики */
   --surface-note: #fcf8de; /* [pipette] фон плашки-подсказки в кейсе */
-  --surface-quote: #faf6df; /* [pipette] заливка плитки с цитатой респондента */
   --surface-neutral-tertiary: #dbdbdb; /* [var] surface/neutral/tertiary — неактивная точка слайдера */
   --surface-device: #0c0c0c; /* [pipette] рамка мокапа телефона в слайдере */
   --surface-control-overlay: rgb(0 0 0 / 12%); /* [pipette] кнопки-стрелки слайдера */

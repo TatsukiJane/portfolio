@@ -8,24 +8,20 @@ import Icon, { type IconName } from './Icon.astro';
  * tone:
  *   solid  — залитая зелёная плитка (главная метрика кейса)
  *   subtle — светло-зелёная плитка с зелёным текстом
- *   quote  — янтарная плитка с цитатой респондента тестирования
  */
 interface Props {
   value: string;
   label: string;
-  tone?: 'solid' | 'subtle' | 'quote';
+  tone?: 'solid' | 'subtle';
   icon?: IconName;
 }
 
-const { value, label, tone = 'subtle', icon } = Astro.props;
-
-/* У плитки с цитатой в макете своя иконка — «печатает», а не конверт. */
-const glyph = icon ?? (tone === 'quote' ? 'typing' : 'send-letter');
+const { value, label, tone = 'subtle', icon = 'send-letter' } = Astro.props;
 ---
 
 <div class:list={['fact', `fact--${tone}`]}>
   {/* Иконка в макете стоит в слоте 32px; цвет приходит через currentColor. */}
-  <Icon name={glyph} size={32} />
+  <Icon name={icon} size={32} />
   <div class="fact__text">
     <p class="fact__value">{value}</p>
     <p class="fact__label">{label}</p>
@@ -66,16 +62,5 @@ const glyph = icon ?? (tone === 'quote' ? 'typing' : 'send-letter');
   .fact--subtle {
     color: var(--text-success);
     background: var(--surface-success-subtle);
-  }
-
-  /* Цитата респондента: в макете подпись под ней темнее самой цитаты —
-     единственная плитка, где два разных цвета текста. */
-  .fact--quote {
-    color: var(--text-quote);
-    background: var(--surface-quote);
-  }
-
-  .fact--quote .fact__label {
-    color: var(--text-quote-label);
   }
 </style>

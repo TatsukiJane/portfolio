@@ -92,11 +92,7 @@ const headingLevels = blocks.map((block) => {
             return (
               <h3
                 id={slugify(block.text)}
-                class:list={[
-                  'section__step',
-                  block.size === 'h5' && 'section__step--small',
-                  block.gapBefore === 160 && 'section__step--apart',
-                ]}
+                class:list={['section__step', block.gapBefore === 160 && 'section__step--apart']}
               >
                 {block.text}
               </h3>
@@ -230,24 +226,11 @@ const headingLevels = blocks.map((block) => {
     line-height: var(--title-h4-height);
   }
 
-  /* В шагах 2 и 3 второго кейса макет набирает подзаголовок тем же кеглем,
-     что и заголовки блоков. */
-  .section__step--small {
-    font-size: var(--title-h5-size);
-    line-height: var(--title-h5-height);
-  }
-
   /* Первая строка первого подзаголовка встаёт на первую строку заголовка
      раздела: у заголовка интерлиньяж 52, у подзаголовка 32, отсюда
      (52 − 32) / 2 = 10. Дальше в разделе выравнивать уже не с чем. */
   .section__content > .section__step:first-child {
     margin-top: 10px;
-  }
-
-  /* У подзаголовка поменьше интерлиньяж 26, и в макете он отбит на 16 —
-     так что содержимое под ним начинается там же, на 42 от начала раздела. */
-  .section__content > .section__step--small:first-child {
-    margin-top: 16px;
   }
 
   /* Новый шаг внутри раздела отделён вдвое большим отступом: 80 от сетки
