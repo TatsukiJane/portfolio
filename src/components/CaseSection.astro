@@ -16,14 +16,22 @@ import { slugify } from '../utils/slug.ts';
  * колонке идут с шагом 80px.
  */
 type Props = CaseSection & {
+  /**
+   * Якорь раздела. Приходит сверху, а не считается из заголовка: заголовки
+   * могут повторяться (во втором кейсе «Решения» стоит у двух разделов),
+   * а id на странице обязан быть один.
+   */
+  id?: string;
   terms?: Record<string, string>;
   /** Кнопка в левом нижнем углу раздела — у последнего раздела кейса
       это «Назад на главную» (в макете узел `4449:10110`). */
   backLink?: { href: string; label: string };
 };
 
-const { title, titleLines, blocks, terms, backLink } = Astro.props;
-const lines = titleLines ?? [title];
+const { id, title, titleLines, blocks, terms, backLink } = Astro.props;
+
+/* У раздела-продолжения заголовка нет вовсе — левая колонка пустая. */
+const lines = titleLines ?? (title ? [title] : []);
 
 /*
  * Уровни заголовков блоков: раздел — h2, подзаголовок шага — h3, поэтому
@@ -41,19 +49,21 @@ const headingLevels = blocks.map((block) => {
 {/* Якоря раздела и шагов считаются из их заголовков — по ним ведёт
     плавающее оглавление (CaseToc), и обычный переход по ссылке с якорем
     тоже встаёт правильно за счёт scroll-padding-top у html. */}
-<section class="section" id={slugify(title)}>
+<section class="section" id={id}>
   <div class="container section__grid">
     <div class="section__aside">
-      <h2 class="section__title">
-        {
-          lines.map((line, index) => (
-            <>
-              {index > 0 && <br />}
-              {line}
-            </>
-          ))
-        }
-      </h2>
+      {
+        lines.length > 0 && (
+          <h2 class="section__title">
+            {lines.map((line, index) => (
+              <>
+                {index > 0 && <br />}
+                {line}
+              </>
+            ))}
+          </h2>
+        )
+      }
       {
         backLink && (
           <div class="section__back">
@@ -82,7 +92,11 @@ const headingLevels = blocks.map((block) => {
             return (
               <h3
                 id={slugify(block.text)}
-                class:list={['section__step', block.gapBefore === 160 && 'section__step--apart']}
+                class:list={[
+                  'section__step',
+                  block.size === 'h5' && 'section__step--small',
+                  block.gapBefore === 160 && 'section__step--apart',
+                ]}
               >
                 {block.text}
               </h3>
@@ -92,7 +106,7 @@ const headingLevels = blocks.map((block) => {
           if (block.type === 'slider') {
             return (
               <div class:list={['section__slider', block.gapBefore === 24 && 'section__slider--tight']}>
-                <CaseSlider tone={block.tone} slides={block.slides} />
+                <CaseSlider tone={block.tone} device={block.device} slides={block.slides} />
               </div>
             );
           }
@@ -106,16 +120,29 @@ const headingLevels = blocks.map((block) => {
               </div>
             );
 
+            /* Строка над плитками отбита от них 24px — своим зазором,
+               а не общим шагом абзацев в блоке. */
+            const body = block.caption ? (
+              <div class="section__metrics-group">
+                <p>
+                  <RichText text={block.caption} terms={terms} />
+                </p>
+                {tiles}
+              </div>
+            ) : (
+              tiles
+            );
+
             return block.title ? (
               <CaseTextBlock
                 title={block.title}
                 titleGap={block.titleGap}
                 headingLevel={headingLevels[index]}
               >
-                {tiles}
+                {body}
               </CaseTextBlock>
             ) : (
-              tiles
+              body
             );
           }
 
@@ -191,10 +218,23 @@ const headingLevels = blocks.map((block) => {
     gap: var(--column-gap);
   }
 
+  /* Пояснение над плитками: в макете 24px до них. */
+  .section__metrics-group {
+    display: grid;
+    gap: var(--space-5);
+  }
+
   .section__step {
     color: var(--text-primary);
     font-size: var(--title-h4-size);
     line-height: var(--title-h4-height);
+  }
+
+  /* В шагах 2 и 3 второго кейса макет набирает подзаголовок тем же кеглем,
+     что и заголовки блоков. */
+  .section__step--small {
+    font-size: var(--title-h5-size);
+    line-height: var(--title-h5-height);
   }
 
   /* Первая строка первого подзаголовка встаёт на первую строку заголовка
@@ -202,6 +242,12 @@ const headingLevels = blocks.map((block) => {
      (52 − 32) / 2 = 10. Дальше в разделе выравнивать уже не с чем. */
   .section__content > .section__step:first-child {
     margin-top: 10px;
+  }
+
+  /* У подзаголовка поменьше интерлиньяж 26, и в макете он отбит на 16 —
+     так что содержимое под ним начинается там же, на 42 от начала раздела. */
+  .section__content > .section__step--small:first-child {
+    margin-top: 16px;
   }
 
   /* Новый шаг внутри раздела отделён вдвое большим отступом: 80 от сетки

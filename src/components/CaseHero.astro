@@ -1,4 +1,5 @@
 ---
+import MockupDesktop from './MockupDesktop.astro';
 import PhoneShots from './PhoneShots.astro';
 import type { CollectionEntry } from 'astro:content';
 
@@ -8,13 +9,16 @@ import type { CollectionEntry } from 'astro:content';
  *
  * Ритм макета: экран начинается на 144px (44 шапки + 100 отступа),
  * от заголовка до контейнера 32px, высота контейнера 821px.
+ *
+ * У кейса про веб контейнер другой — 1240×760 с одним десктопным экраном
+ * 1104×632 по центру; он приходит полем `cover`.
  */
 interface Props {
   entry: CollectionEntry<'cases'>;
 }
 
 const { entry } = Astro.props;
-const { title, titleLines, tags, shots } = entry.data;
+const { title, titleLines, tags, shots, cover } = entry.data;
 
 /* Разбивка на строки взята из макета; если её не задали — строка ломается сама. */
 const lines = titleLines ?? [title];
@@ -45,7 +49,15 @@ const lines = titleLines ?? [title];
     </div>
 
     {/* eager: контейнер с экранами — в видимой области и LCP страницы. */}
-    {shots.length > 0 && <PhoneShots shots={shots} eager />}
+    {
+      cover ? (
+        <div class="hero__shot">
+          <MockupDesktop alt={cover.alt} src={cover.src} width={1104} height={632} eager />
+        </div>
+      ) : (
+        shots.length > 0 && <PhoneShots shots={shots} eager />
+      )
+    }
   </div>
 </section>
 
@@ -66,8 +78,23 @@ const lines = titleLines ?? [title];
     margin-bottom: var(--space-6); /* 32px до контейнера с экранами */
   }
 
+  /* Ширину заголовку не ограничиваем: строки в нём разбиты вручную
+     (`titleLines`), а в макете его рамка просто обтягивает текст — у второго
+     кейса это 664px, то есть прежний предел 613 ломал бы строку лишний раз.
+     От метки платформы заголовок и так отделён: она соседний флекс-элемент
+     и место под себя забирает сама. */
   .hero__title {
-    max-width: 613px;
+    min-width: 0;
+  }
+
+  /* Контейнер веб-кейса: 1240×760 при полях 64 сверху и снизу, экран
+     1104 по центру — то есть 68 по бокам. */
+  .hero__shot {
+    display: flex;
+    justify-content: center;
+    padding-block: 64px;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-large);
   }
 
   .hero__tags {

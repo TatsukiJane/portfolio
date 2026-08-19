@@ -43,17 +43,48 @@ for (const section of sections) {
 }
 
 /*
- * Оглавление: глава на раздел, шаг на подзаголовок внутри него. Названия
- * берутся из самих глав — так велит спека макета, — а якоря CaseSection
- * считает от тех же заголовков той же slugify, поэтому они совпадают.
+ * Якорь раздела. Обычно это просто slug заголовка, но заголовки повторяются:
+ * во втором кейсе «Решения» стоит у двух разделов, а id на странице обязан
+ * быть один. Поэтому повтор получает номер, и этот же id уезжает и в раздел,
+ * и в оглавление — чтобы они не разошлись.
  */
-const toc = sections.map((section) => ({
-  id: slugify(section.title),
-  title: section.title,
-  steps: section.blocks
+const usedIds = new Set<string>();
+
+function sectionId(title: string): string {
+  const base = slugify(title);
+  let id = base;
+
+  for (let n = 2; usedIds.has(id); n += 1) id = `${base}-${n}`;
+
+  usedIds.add(id);
+  return id;
+}
+
+const sectionIds = sections.map((section) => (section.title ? sectionId(section.title) : undefined));
+
+/*
+ * Оглавление: глава на раздел, шаг на подзаголовок внутри него. Названия
+ * берутся из самих глав — так велит спека макета, — а якоря шагов CaseSection
+ * считает той же slugify от тех же заголовков, поэтому они совпадают.
+ *
+ * Раздел без заголовка — продолжение предыдущего (в макете так набран второй
+ * шаг «Решений»): своей главы у него нет, его шаги дописываются в главу выше.
+ */
+const toc: { id: string; title: string; steps: { id: string; title: string }[] }[] = [];
+
+sections.forEach((section, index) => {
+  const steps = section.blocks
     .filter((block) => block.type === 'heading')
-    .map((block) => ({ id: slugify(block.text), title: block.text })),
-}));
+    .map((block) => ({ id: slugify(block.text), title: block.text }));
+
+  const id = sectionIds[index];
+
+  if (section.title && id) {
+    toc.push({ id, title: section.title, steps });
+  } else {
+    toc.at(-1)?.steps.push(...steps);
+  }
+});
 ---
 
 <BaseLayout title={`${title} — ${profile.name}`} description={description}>
@@ -67,6 +98,7 @@ const toc = sections.map((section) => ({
               от края до края окна, а не по ширине контента. */}
           <Divider />
           <CaseSection
+            id={sectionIds[index]}
             title={section.title}
             titleLines={section.titleLines}
             blocks={section.blocks}
