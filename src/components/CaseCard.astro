@@ -1,5 +1,6 @@
 ---
 import Badge from './Badge.astro';
+import DesktopShot from './DesktopShot.astro';
 import PhoneShots from './PhoneShots.astro';
 import type { CollectionEntry } from 'astro:content';
 
@@ -8,7 +9,9 @@ import type { CollectionEntry } from 'astro:content';
  * с экранами приложения.
  *
  * Контейнер с экранами вынесен в PhoneShots — в макете это тот же узел,
- * что и в первом экране страницы кейса.
+ * что и в первом экране страницы кейса. У кейса про веб экран один
+ * и десктопный, поэтому там стоит DesktopShot — тоже общий с первым
+ * экраном кейса.
  *
  * Карточка становится ссылкой только у кейса с описанными разделами: у кейса
  * без них страница не собирается, и ссылка вела бы в 404. Заодно заготовка
@@ -19,7 +22,7 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, metrics, tags, shots, sections } = entry.data;
+const { title, metrics, tags, shots, cover, sections } = entry.data;
 
 const href = sections.length > 0 ? `/cases/${entry.id}/` : undefined;
 /* Astro подставляет имя тега из переменной с заглавной буквы. */
@@ -45,7 +48,13 @@ const Wrapper = href ? 'a' : 'div';
       }
     </div>
 
-    {shots.length > 0 && <PhoneShots shots={shots} interactive={Boolean(href)} />}
+    {
+      cover ? (
+        <DesktopShot shot={cover} interactive={Boolean(href)} />
+      ) : (
+        shots.length > 0 && <PhoneShots shots={shots} interactive={Boolean(href)} />
+      )
+    }
   </Wrapper>
 </article>
 

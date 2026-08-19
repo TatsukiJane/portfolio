@@ -1,0 +1,64 @@
+---
+import MockupDesktop from './MockupDesktop.astro';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * Серый контейнер с одним десктопным экраном — первый экран кейса про веб
+ * и та же плашка в его карточке на главной. Парный к PhoneShots: там ряд
+ * телефонов, здесь один экран браузера.
+ *
+ * Размеры из макета (узел `4500:15114`): контейнер 1240×760, поля 64 сверху
+ * и снизу, экран 1104×632 по центру — то есть 68 по бокам.
+ */
+interface Props {
+  shot: { src?: ImageMetadata; alt: string };
+  /**
+   * Ховер. Нужен там, где контейнер обещает клик (карточка на главной);
+   * на странице кейса это просто иллюстрация.
+   */
+  interactive?: boolean;
+  /**
+   * Грузить сразу и с высоким приоритетом — для первого экрана страницы,
+   * где этот экран и есть LCP.
+   */
+  eager?: boolean;
+}
+
+const { shot, interactive = false, eager = false } = Astro.props;
+---
+
+<div class:list={['shot', interactive && 'shot--interactive']}>
+  <MockupDesktop alt={shot.alt} src={shot.src} width={1104} height={632} eager={eager} />
+</div>
+
+<style>
+  .shot {
+    display: flex;
+    justify-content: center;
+    padding-block: 64px;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-large);
+    transition: background-color 0.3s ease;
+  }
+
+  /* Тот же отклик, что у ряда телефонов: фон едва темнеет, экран
+     приподнимается. В макете эффекта нет — он ответ на то, что карточка
+     кейса целиком ссылка. */
+  .shot--interactive:hover {
+    background: #efefef;
+  }
+
+  .shot :global(.mockup) {
+    transition: transform 0.3s ease;
+  }
+
+  .shot--interactive:hover :global(.mockup) {
+    transform: translateY(-8px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shot--interactive:hover :global(.mockup) {
+      transform: none;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-import MockupDesktop from './MockupDesktop.astro';
+import DesktopShot from './DesktopShot.astro';
 import PhoneShots from './PhoneShots.astro';
 import type { CollectionEntry } from 'astro:content';
 
@@ -51,9 +51,7 @@ const lines = titleLines ?? [title];
     {/* eager: контейнер с экранами — в видимой области и LCP страницы. */}
     {
       cover ? (
-        <div class="hero__shot">
-          <MockupDesktop alt={cover.alt} src={cover.src} width={1104} height={632} eager />
-        </div>
+        <DesktopShot shot={cover} eager />
       ) : (
         shots.length > 0 && <PhoneShots shots={shots} eager />
       )
@@ -87,15 +85,6 @@ const lines = titleLines ?? [title];
     min-width: 0;
   }
 
-  /* Контейнер веб-кейса: 1240×760 при полях 64 сверху и снизу, экран
-     1104 по центру — то есть 68 по бокам. */
-  .hero__shot {
-    display: flex;
-    justify-content: center;
-    padding-block: 64px;
-    background: var(--surface-secondary);
-    border-radius: var(--radius-large);
-  }
 
   .hero__tags {
     color: var(--text-tertiary);
