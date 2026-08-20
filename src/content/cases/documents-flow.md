@@ -181,15 +181,15 @@ sections:
             # второго экрана к третьему. Числа — рамки узлов макета.
             connectors:
               - src: ../../assets/case-documents-arrow-problem-1.svg
-                x: 254
-                y: 96.5
-                width: 98
-                height: 435.5
+                x: 251.113
+                y: 93.613
+                width: 100.887
+                height: 441.274
               - src: ../../assets/case-documents-arrow-problem-2.svg
-                x: 660
-                y: 88
-                width: 52
-                height: 232.145
+                x: 657.113
+                y: 85.113
+                width: 54.887
+                height: 237.919
       - type: text
         title: Стало
         paragraphs:
@@ -218,15 +218,15 @@ sections:
             # к третьему экрану.
             connectors:
               - src: ../../assets/case-documents-arrow-solution-1.svg
-                x: 144
-                y: 370
-                width: 208
-                height: 160
+                x: 141.113
+                y: 367.113
+                width: 210.887
+                height: 165.774
               - src: ../../assets/case-documents-arrow-solution-2.svg
-                x: 638
-                y: 243
-                width: 74
-                height: 325
+                x: 635.113
+                y: 240.113
+                width: 76.887
+                height: 330.774
           # Второй слайд: подпись одна на весь ряд — она про шаг целиком.
           - shots:
               - src: ../../assets/case-documents-solution-2-1.png
@@ -241,10 +241,10 @@ sections:
             # От строки файла на первом экране к предпросмотру на втором.
             connectors:
               - src: ../../assets/case-documents-arrow-solution-3.svg
-                x: 276
-                y: 103
-                width: 76
-                height: 193
+                x: 273.113
+                y: 100.113
+                width: 78.887
+                height: 198.774
       - type: metrics
         title: Результат изменений в шаге
         titleGap: 24
@@ -284,15 +284,15 @@ sections:
                 еще больше, что усложняло принятие решения
             connectors:
               - src: ../../assets/case-recipients-arrow-problem-1.svg
-                x: 279
-                y: 118
-                width: 73
-                height: 39.145
+                x: 276.113
+                y: 115.113
+                width: 75.887
+                height: 44.919
               - src: ../../assets/case-recipients-arrow-problem-2.svg
-                x: 622
-                y: 112
-                width: 90
-                height: 69.145
+                x: 619.113
+                y: 109.113
+                width: 92.887
+                height: 74.919
       - type: text
         title: Стало
         paragraphs:
@@ -317,15 +317,15 @@ sections:
                 помогло ускорить выполнение сценария
             connectors:
               - src: ../../assets/case-recipients-arrow-solution-1.svg
-                x: 642
-                y: 58
-                width: 70
-                height: 126
+                x: 639.113
+                y: 55.113
+                width: 72.887
+                height: 131.774
               - src: ../../assets/case-recipients-arrow-solution-2.svg
-                x: 270
-                y: 312
-                width: 82
-                height: 48
+                x: 267.113
+                y: 309.113
+                width: 84.887
+                height: 53.774
       - type: metrics
         title: Результат изменений в шаге
         titleGap: 24
@@ -366,15 +366,15 @@ sections:
                 Это требовало дополнительных знаний и путало пользователей"
             connectors:
               - src: ../../assets/case-signing-arrow-problem-1.svg
-                x: 54
-                y: 355
-                width: 298
-                height: 160.5
+                x: 51.113
+                y: 352.113
+                width: 300.887
+                height: 166.274
               - src: ../../assets/case-signing-arrow-problem-2.svg
-                x: 569
-                y: 414
-                width: 143
-                height: 11.355
+                x: 566.113
+                y: 411.113
+                width: 145.887
+                height: 17.129
       - type: text
         title: Стало
         paragraphs:
@@ -404,15 +404,15 @@ sections:
                 действиях, что облегчает повторное взаимодействие
             connectors:
               - src: ../../assets/case-signing-arrow-solution-1.svg
-                x: 275.5
-                y: 211
-                width: 76.5
-                height: 80
+                x: 272.613
+                y: 208.113
+                width: 79.387
+                height: 85.774
               - src: ../../assets/case-signing-arrow-solution-2.svg
-                x: 659
-                y: 291
-                width: 53
-                height: 0
+                x: 656.113
+                y: 288.113
+                width: 55.887
+                height: 5.774
           # Второй слайд: подпись только под средним экраном — крайние
           # столбцы в макете есть, но пустые.
           - title: Подписание через ЭЦП файл
@@ -432,15 +432,15 @@ sections:
               - ""
             connectors:
               - src: ../../assets/case-signing-arrow-ecp-1.svg
-                x: 276
-                y: 174.5
-                width: 76.5
-                height: 129.5
+                x: 273.113
+                y: 171.613
+                width: 79.387
+                height: 135.274
               - src: ../../assets/case-signing-arrow-ecp-2.svg
-                x: 503.5
-                y: 291
-                width: 209
-                height: 197
+                x: 500.613
+                y: 288.113
+                width: 211.887
+                height: 202.774
           - title: Распространение подписания по ЭЦП файлу
             shots:
               - src: ../../assets/case-signing-solution-3-1.png
@@ -464,15 +464,15 @@ sections:
                 alt: Экран «Настройки ЭЦП» с загруженным сертификатом
             connectors:
               - src: ../../assets/case-signing-arrow-settings-1.svg
-                x: 132
-                y: 202.5
-                width: 219.554
-                height: 125.5
+                x: 129.113
+                y: 199.613
+                width: 222.441
+                height: 131.274
               - src: ../../assets/case-signing-arrow-settings-2.svg
-                x: 504
-                y: 164
-                width: 209
-                height: 379
+                x: 501.113
+                y: 161.113
+                width: 211.887
+                height: 384.774
       - type: metrics
         title: Результат изменений в шаге
         titleGap: 24

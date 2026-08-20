@@ -28,26 +28,21 @@ type Props = Omit<CaseSliderBlock, 'type' | 'gapBefore'>;
 
 const { tone = 'problem', device = 'phone', slides } = Astro.props;
 
-/*
- * Вынос обводки в экспортированных SVG-выносках: линия рисуется по рамке
- * узла, и штрих выступает за неё на полтолщины. У всех пяти выносок макета
- * вынос одинаковый — 2.887px слева, сверху и снизу (справа нет: там линия
- * кончается стрелкой внутрь рамки). В контенте записана рамка узла из
- * макета, а сдвиг картинки под вынос считается здесь.
- */
-const bleed = 2.887;
+/* Управление нужно только когда листать есть что. */
+const isSlider = slides.length > 1;
 ---
 
 {/*
-  Роль объявлена явно: скринридер сообщает, что это слайдер и какой слайд
-  из скольких открыт.
+  У слайдера с несколькими слайдами роль объявлена явно: скринридер сообщает,
+  что это слайдер и какой слайд из скольких открыт. У одиночного объявлять
+  нечего — это просто картинка.
 */}
 <div
   class:list={['slider', `slider--${tone}`]}
   data-slider
-  role="group"
-  aria-roledescription="слайдер"
-  aria-label="Экраны приложения"
+  role={isSlider ? 'group' : undefined}
+  aria-roledescription={isSlider ? 'слайдер' : undefined}
+  aria-label={isSlider ? 'Экраны приложения' : undefined}
 >
   {/*
     Дорожка прокручивается по горизонтали с прилипанием — листать можно
@@ -59,9 +54,9 @@ const bleed = 2.887;
       slides.map((slide, index) => (
         <div
           class="slider__slide"
-          role="group"
-          aria-roledescription="слайд"
-          aria-label={`${index + 1} из ${slides.length}`}
+          role={isSlider ? 'group' : undefined}
+          aria-roledescription={isSlider ? 'слайд' : undefined}
+          aria-label={isSlider ? `${index + 1} из ${slides.length}` : undefined}
         >
           {slide.title && <p class="slider__title">{slide.title}</p>}
 
@@ -97,13 +92,14 @@ const bleed = 2.887;
               />
             ))}
 
-            {/* Выноски — кривые от элемента одного экрана к другому. */}
+            {/* Выноски — кривые от подписи к элементу экрана. Числа в контенте
+                уже учитывают вынос обводки экспорта, он у каждого файла свой. */}
             {slide.connectors.map((line) => (
               <Image
                 class="slider__connector"
                 src={line.src}
                 alt=""
-                style={`left: ${line.x - bleed}px; top: ${line.y - bleed}px; width: ${line.width + bleed}px; height: ${line.height + 2 * bleed}px`}
+                style={`left: ${line.x}px; top: ${line.y}px; width: ${line.width}px; height: ${line.height}px`}
               />
             ))}
           </div>
@@ -130,41 +126,38 @@ const bleed = 2.887;
     }
   </div>
 
-  {/* Управление стоит у каждого слайдера, даже у одиночного — решение
-      владельца. Стрелка «назад» на первом слайде выключена сразу, дальше
-      состояние ведёт скрипт; у слайдера с единственным слайдом выключены обе. */}
-  <button
-    class="slider__nav slider__nav--prev"
-    type="button"
-    data-prev
-    disabled
-    aria-label="Предыдущий слайд"
-  >
-    <Icon name="arrow-left" />
-  </button>
-  <button
-    class="slider__nav slider__nav--next"
-    type="button"
-    data-next
-    disabled={slides.length === 1}
-    aria-label="Следующий слайд"
-  >
-    <Icon name="arrow-right" />
-  </button>
-
-  <div class="slider__dots">
-    {
-      slides.map((_, index) => (
+  {
+    isSlider && (
+      <>
+        {/* Стрелка «назад» на первом слайде выключена сразу: дальше состояние
+            стрелок ведёт скрипт. */}
         <button
-          class="slider__dot"
+          class="slider__nav slider__nav--prev"
           type="button"
-          data-dot
-          aria-label={`Слайд ${index + 1} из ${slides.length}`}
-          aria-current={index === 0 ? 'true' : undefined}
-        />
-      ))
-    }
-  </div>
+          data-prev
+          disabled
+          aria-label="Предыдущий слайд"
+        >
+          <Icon name="arrow-left" />
+        </button>
+        <button class="slider__nav slider__nav--next" type="button" data-next aria-label="Следующий слайд">
+          <Icon name="arrow-right" />
+        </button>
+
+        <div class="slider__dots">
+          {slides.map((_, index) => (
+            <button
+              class="slider__dot"
+              type="button"
+              data-dot
+              aria-label={`Слайд ${index + 1} из ${slides.length}`}
+              aria-current={index === 0 ? 'true' : undefined}
+            />
+          ))}
+        </div>
+      </>
+    )
+  }
 </div>
 
 <style>

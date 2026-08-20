@@ -178,6 +178,12 @@ sections:
                 x: 676
                 y: 281
                 width: 308
+            connectors:
+              - src: ../../assets/case-roles-entry-arrow-problem-1.svg
+                x: 620.9
+                y: 124.013
+                width: 134.445
+                height: 187.627
           - shots:
               - src: ../../assets/case-roles-entry-problem-2.png
                 alt: Меню настроек организации — пункта с ролями в нём нет
@@ -190,6 +196,12 @@ sections:
                 x: 171
                 y: 239
                 width: 380
+            connectors:
+              - src: ../../assets/case-roles-entry-arrow-problem-2.svg
+                x: 190.113
+                y: 152.113
+                width: 5.774
+                height: 78.887
       - type: text
         title: Стало
         paragraphs:
@@ -216,6 +228,17 @@ sections:
                 x: 666
                 y: 433
                 width: 318
+            connectors:
+              - src: ../../assets/case-roles-entry-arrow-solution-1a.svg
+                x: 628.8
+                y: 224.713
+                width: 126.535
+                height: 151.736
+              - src: ../../assets/case-roles-entry-arrow-solution-1b.svg
+                x: 593.649
+                y: 318.423
+                width: 161.686
+                height: 144.237
           - shots:
               - src: ../../assets/case-roles-entry-solution-2.png
                 alt: Карточка первого администратора из списка
@@ -227,6 +250,12 @@ sections:
                 y: 488
                 width: 308
                 align: center
+            connectors:
+              - src: ../../assets/case-roles-entry-arrow-solution-2.svg
+                x: 190.113
+                y: 152.113
+                width: 5.774
+                height: 78.887
           - shots:
               - src: ../../assets/case-roles-entry-solution-3.png
                 alt: Меню организации со всеми опциями настроек
@@ -242,6 +271,12 @@ sections:
                 y: 96
                 width: 117
                 height: 36
+            connectors:
+              - src: ../../assets/case-roles-entry-arrow-solution-3.svg
+                x: 328.61
+                y: 109.124
+                width: 88.887
+                height: 214.387
       - type: metrics
         title: Результат изменений
         caption: Данные взяты из юзабилити-тестирований
@@ -278,6 +313,12 @@ sections:
                 x: 496
                 y: 43
                 width: 308
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-problem-1.svg
+                x: 812
+                y: 65.119
+                width: 115.887
+                height: 152.773
           - title: Страница ролей, когда ты не администратор
             shots:
               - src: ../../assets/case-roles-settings-problem-2.png
@@ -290,6 +331,12 @@ sections:
                 x: 487
                 y: 22
                 width: 317
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-problem-2.svg
+                x: 812
+                y: 64.113
+                width: 115.887
+                height: 152.773
           - title: Страница роли внутри
             shots:
               - src: ../../assets/case-roles-settings-problem-3.png
@@ -300,6 +347,12 @@ sections:
                 x: 659
                 y: 54
                 width: 335
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-problem-3.svg
+                x: 230.109
+                y: 54.113
+                width: 415.887
+                height: 29.773
       - type: text
         title: Стало
         paragraphs:
@@ -323,6 +376,12 @@ sections:
                 x: 559
                 y: 49
                 width: 406
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-solution-1.svg
+                x: 521.116
+                y: 129
+                width: 61.773
+                height: 407.887
           - title: Страница ролей, когда ты не администратор
             shots:
               - src: ../../assets/case-roles-settings-solution-2.png
@@ -335,6 +394,12 @@ sections:
                 x: 559
                 y: 49
                 width: 406
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-solution-2.svg
+                x: 577.113
+                y: 169
+                width: 289.773
+                height: 59.887
           - title: Подробный разбор тултипа
             shots:
               - src: ../../assets/case-roles-settings-solution-3.png
@@ -351,6 +416,22 @@ sections:
                 x: 697
                 y: 357
                 width: 245
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-solution-3a.svg
+                x: 244
+                y: 247.113
+                width: 44.887
+                height: 5.774
+              - src: ../../assets/case-roles-settings-arrow-solution-3b.svg
+                x: 539
+                y: 293.499
+                width: 98.5
+                height: 219
+              - src: ../../assets/case-roles-settings-arrow-solution-3c.svg
+                x: 634.113
+                y: 400.113
+                width: 54.887
+                height: 5.774
           - title: Получение прав администратора через кнопку в тултипе
             shots:
               - src: ../../assets/case-roles-settings-solution-4.png
@@ -372,6 +453,12 @@ sections:
                 x: 694
                 y: 515
                 width: 275
+            connectors:
+              - src: ../../assets/case-roles-settings-arrow-solution-5.svg
+                x: 319.113
+                y: 294.113
+                width: 365.887
+                height: 5.774
       - type: metrics
         title: Результат изменений
         caption: Данные взяты из юзабилити-тестирований
@@ -408,6 +495,12 @@ sections:
                 x: 602
                 y: 50
                 width: 395
+            connectors:
+              - src: ../../assets/case-roles-signing-arrow-problem-1.svg
+                x: 357.122
+                y: 57.114
+                width: 236.887
+                height: 20.773
       - type: text
         title: Стало
         paragraphs:
@@ -431,6 +524,12 @@ sections:
                 x: 635
                 y: 50
                 width: 362
+            connectors:
+              - src: ../../assets/case-roles-signing-arrow-solution-1.svg
+                x: 471.111
+                y: 73.115
+                width: 159.887
+                height: 50.773
           # В макете «и/или находится в нужной группе» — рассогласование.
           - title: Страница подписания, если ты администратор и/или находишься
               в нужной группе роли
@@ -445,6 +544,12 @@ sections:
                 x: 635
                 y: 50
                 width: 362
+            connectors:
+              - src: ../../assets/case-roles-signing-arrow-solution-2.svg
+                x: 471.111
+                y: 73.115
+                width: 159.887
+                height: 50.773
       - type: metrics
         title: Результат изменений
         caption: Данные взяты из юзабилити-тестирований
