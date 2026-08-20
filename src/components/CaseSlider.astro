@@ -26,13 +26,7 @@ import type { CaseSliderBlock } from '../content.config.ts';
  */
 type Props = Omit<CaseSliderBlock, 'type' | 'gapBefore'>;
 
-const { tone = 'problem', device = 'phone', controls = 'auto', slides } = Astro.props;
-
-/*
- * Управление нужно, когда листать есть что, — либо когда слайдер заранее
- * держит под него место (`controls: always`), потому что экраны ещё приедут.
- */
-const hasControls = controls === 'always' || slides.length > 1;
+const { tone = 'problem', device = 'phone', slides } = Astro.props;
 
 /*
  * Вынос обводки в экспортированных SVG-выносках: линия рисуется по рамке
@@ -45,16 +39,15 @@ const bleed = 2.887;
 ---
 
 {/*
-  У слайдера с управлением роль объявлена явно: скринридер сообщает, что это
-  слайдер и какой слайд из скольких открыт. У одиночного без управления
-  объявлять нечего — это просто картинка.
+  Роль объявлена явно: скринридер сообщает, что это слайдер и какой слайд
+  из скольких открыт.
 */}
 <div
   class:list={['slider', `slider--${tone}`]}
   data-slider
-  role={hasControls ? 'group' : undefined}
-  aria-roledescription={hasControls ? 'слайдер' : undefined}
-  aria-label={hasControls ? 'Экраны приложения' : undefined}
+  role="group"
+  aria-roledescription="слайдер"
+  aria-label="Экраны приложения"
 >
   {/*
     Дорожка прокручивается по горизонтали с прилипанием — листать можно
@@ -66,9 +59,9 @@ const bleed = 2.887;
       slides.map((slide, index) => (
         <div
           class="slider__slide"
-          role={hasControls ? 'group' : undefined}
-          aria-roledescription={hasControls ? 'слайд' : undefined}
-          aria-label={hasControls ? `${index + 1} из ${slides.length}` : undefined}
+          role="group"
+          aria-roledescription="слайд"
+          aria-label={`${index + 1} из ${slides.length}`}
         >
           {slide.title && <p class="slider__title">{slide.title}</p>}
 
@@ -137,44 +130,41 @@ const bleed = 2.887;
     }
   </div>
 
-  {
-    hasControls && (
-      <>
-        {/* Стрелка «назад» на первом слайде выключена сразу, дальше состояние
-            ведёт скрипт; у слайдера с единственным слайдом выключены обе. */}
-        <button
-          class="slider__nav slider__nav--prev"
-          type="button"
-          data-prev
-          disabled
-          aria-label="Предыдущий слайд"
-        >
-          <Icon name="arrow-left" />
-        </button>
-        <button
-          class="slider__nav slider__nav--next"
-          type="button"
-          data-next
-          disabled={slides.length === 1}
-          aria-label="Следующий слайд"
-        >
-          <Icon name="arrow-right" />
-        </button>
+  {/* Управление стоит у каждого слайдера, даже у одиночного — решение
+      владельца. Стрелка «назад» на первом слайде выключена сразу, дальше
+      состояние ведёт скрипт; у слайдера с единственным слайдом выключены обе. */}
+  <button
+    class="slider__nav slider__nav--prev"
+    type="button"
+    data-prev
+    disabled
+    aria-label="Предыдущий слайд"
+  >
+    <Icon name="arrow-left" />
+  </button>
+  <button
+    class="slider__nav slider__nav--next"
+    type="button"
+    data-next
+    disabled={slides.length === 1}
+    aria-label="Следующий слайд"
+  >
+    <Icon name="arrow-right" />
+  </button>
 
-        <div class="slider__dots">
-          {slides.map((_, index) => (
-            <button
-              class="slider__dot"
-              type="button"
-              data-dot
-              aria-label={`Слайд ${index + 1} из ${slides.length}`}
-              aria-current={index === 0 ? 'true' : undefined}
-            />
-          ))}
-        </div>
-      </>
-    )
-  }
+  <div class="slider__dots">
+    {
+      slides.map((_, index) => (
+        <button
+          class="slider__dot"
+          type="button"
+          data-dot
+          aria-label={`Слайд ${index + 1} из ${slides.length}`}
+          aria-current={index === 0 ? 'true' : undefined}
+        />
+      ))
+    }
+  </div>
 </div>
 
 <style>

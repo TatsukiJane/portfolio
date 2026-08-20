@@ -102,12 +102,7 @@ const headingLevels = blocks.map((block) => {
           if (block.type === 'slider') {
             return (
               <div class:list={['section__slider', block.gapBefore === 24 && 'section__slider--tight']}>
-                <CaseSlider
-                  tone={block.tone}
-                  device={block.device}
-                  controls={block.controls}
-                  slides={block.slides}
-                />
+                <CaseSlider tone={block.tone} device={block.device} slides={block.slides} />
               </div>
             );
           }
