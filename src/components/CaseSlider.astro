@@ -441,8 +441,19 @@ const isSlider = slides.length > 1;
       if (next) next.disabled = index === last;
     };
 
+    /*
+     * Слайд, на котором дорожка стояла до жеста, и признак того, что её
+     * сейчас везёт скрипт. По ним доводка отличает жест пользователя
+     * от собственной анимации (см. обработчик прокрутки).
+     */
+    let anchor = 0;
+    let settling = false;
+
     const go = (index: number) => {
       const target = Math.max(0, Math.min(last, index));
+      anchor = target;
+      /* Если ехать некуда, события прокрутки не придут и флаг завис бы. */
+      settling = Math.abs(offsetOf(target) - track.scrollLeft) > 1;
       track.scrollTo({
         left: offsetOf(target),
         /* Кому анимация мешает — тому мгновенно. */
@@ -464,6 +475,10 @@ const isSlider = slides.length > 1;
      */
     track.style.scrollSnapType = 'none';
 
+    /* Шаг листания: расстояние между соседними слайдами. У одиночного
+       слайдера соседа нет — берём ширину дорожки. */
+    const gestureStep = () => (slides.length > 1 ? offsetOf(1) - offsetOf(0) : track.clientWidth);
+
     let dragging = false;
     let settleTimer = 0;
 
@@ -480,8 +495,35 @@ const isSlider = slides.length > 1;
       clearTimeout(settleTimer);
       settleTimer = window.setTimeout(() => {
         if (dragging) return;
-        const index = current();
-        if (Math.abs(offsetOf(index) - track.scrollLeft) > 1) go(index);
+
+        /* Прокрутку затеял скрипт — доводить нечего, дорожка уже на месте. */
+        if (settling) {
+          settling = false;
+          anchor = current();
+          return;
+        }
+
+        /*
+         * Жест тачпада засчитывается коротким. Раньше дорожка просто ехала
+         * к ближайшему слайду, то есть жест надо было тянуть больше чем
+         * на половину слайда — иначе она возвращалась назад. Теперь смотрим,
+         * насколько дорожка уехала от слайда, на котором стояла:
+         *   дальше половины — доводим туда, куда уехали (длинный жест
+         *   через несколько слайдов так и остаётся длинным);
+         *   меньше половины, но заметно — считаем это шагом на один слайд;
+         *   совсем чуть-чуть — возвращаем назад.
+         */
+        const moved = track.scrollLeft - offsetOf(anchor);
+        const nearest = current();
+        const target =
+          nearest !== anchor
+            ? nearest
+            : Math.abs(moved) > gestureStep() * 0.1
+              ? anchor + Math.sign(moved)
+              : anchor;
+
+        anchor = Math.max(0, Math.min(last, target));
+        if (Math.abs(offsetOf(anchor) - track.scrollLeft) > 1) go(anchor);
       }, 100);
     });
 
