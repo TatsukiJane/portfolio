@@ -48,6 +48,7 @@
   --border-success-subtle: #c8e5cf; /* [pipette] обводка зелёного бейджа */
   --border-neutral: #e6e6e6; /* [pipette] обводка нейтрального бейджа */
   --border-decorative: #f1f1f1; /* [pipette] декоративные линии в hero */
+  --border-divider: #f0f0f0; /* [pipette] разделители секций (компонент Divider, узел 4107:1024) */
   --border-control-overlay: rgb(255 255 255 / 8%); /* [pipette] обводка кнопок-стрелок слайдера */
 
   /* --- Цвет: иконки --- */
