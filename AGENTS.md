@@ -32,7 +32,7 @@ zod v4, склейка текстовых узлов) — в [CLAUDE.md](CLAUDE.
 ```bash
 npm install
 npm run dev       # разработка на http://localhost:4321
-npm run build     # сборка в dist/
+npm run build     # сборка в dist/ (и чистка её от неиспользуемых копий)
 npm run preview   # посмотреть собранный сайт
 npm run check     # astro check: типы и шаблоны
 ```
@@ -41,6 +41,9 @@ npm run check     # astro check: типы и шаблоны
 
 **Что проверяется само:** `npm run check` (должно быть 0 ошибок / 0 предупреждений /
 0 подсказок) и `npm run build`. Неизвестное имя иконки валит сборку осознанно.
+Так же осознанно её валит `scripts/prune-dist.mjs`, если перестал находить
+ссылки на файлы в `dist/_astro/`: выложить сборку без картинок хуже, чем
+не собрать её. Порог и устройство — в [CLAUDE.md](CLAUDE.md#деплой).
 
 **Чем проверяется выкладка:** `node scripts/check-deploy.mjs` после `npm run build` —
 сверяет все страницы прода с собранным `dist`. Голое сравнение HTML тут врёт,

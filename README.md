@@ -59,7 +59,7 @@ src/
   pages/index.astro   # главная
   pages/cases/[id].astro  # страница кейса
 public/               # favicon, robots.txt, сюда же резюме
-scripts/              # вспомогательные скрипты, вне сборки:
+scripts/              # prune-dist.mjs — чистка сборки, запускается сам в конце build;
                       # og-image.mjs — превью ссылки, check-deploy.mjs — проверка деплоя
 ```
 
