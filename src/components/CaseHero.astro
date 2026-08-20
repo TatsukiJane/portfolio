@@ -25,7 +25,7 @@ const lines = titleLines ?? [title];
 ---
 
 <section class="hero">
-  <div class="container">
+  <div class="container hero__inner">
     <div class="hero__head">
       <h1 class="hero__title">
         {
@@ -66,9 +66,19 @@ const lines = titleLines ?? [title];
     padding-bottom: var(--space-section);
   }
 
+  /* Первый экран живёт по тому же правилу, что карточка кейса на главной:
+     блок занимает 85% высоты окна, заголовок держит свою высоту, обложка
+     забирает остаток. В макете высота у неё фиксированная (821). */
+  .hero__inner {
+    display: flex;
+    flex-direction: column;
+    height: 85dvh;
+  }
+
   /* Метка платформы прижата к правому краю и стоит на нижней строке
      заголовка — в макете её низ совпадает с низом H1. */
   .hero__head {
+    flex: none;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;

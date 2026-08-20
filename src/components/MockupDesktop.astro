@@ -38,7 +38,7 @@ interface Props {
 const { alt, src, width = 1008, height = 630, eager = false } = Astro.props;
 ---
 
-<div class="mockup" style={`--mockup-width: ${width}px; --mockup-height: ${height}px`}>
+<div class="mockup" style={`--mockup-width: ${width}; --mockup-height: ${height}`}>
   {
     src ? (
       <Image
@@ -57,10 +57,15 @@ const { alt, src, width = 1008, height = 630, eager = false } = Astro.props;
 </div>
 
 <style>
-  /* Радиус задан экрану (8), внешний край рамки браузер скругляет сам. */
+  /* Радиус задан экрану (8), внешний край рамки браузер скругляет сам.
+     Размеры приходят числами, а не длинами: из тех же чисел собирается
+     `aspect-ratio`, чтобы при ограничении высоты (обложка карточки умеет
+     ужиматься) ширина уезжала пропорционально, а не искажала экран.
+     Пока обе стороны заданы, `aspect-ratio` ни на что не влияет. */
   .mockup {
-    width: var(--mockup-width);
-    height: var(--mockup-height);
+    width: calc(var(--mockup-width) * 1px);
+    height: calc(var(--mockup-height) * 1px);
+    aspect-ratio: var(--mockup-width) / var(--mockup-height);
     overflow: clip;
     background: var(--surface-base);
     border-radius: var(--radius-card);
@@ -69,6 +74,8 @@ const { alt, src, width = 1008, height = 630, eager = false } = Astro.props;
 
   .mockup :global(img) {
     display: block;
+    width: 100%;
+    height: 100%;
   }
 
   /* Заглушка: видно, какой экран сюда встанет, и что он ещё не встал. */
