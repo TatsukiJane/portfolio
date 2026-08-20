@@ -26,8 +26,9 @@ export const profile = {
    */
   description: 'Про мой опыт в формате кейсов',
 
-  /** Ключевые слова вокруг фото в hero. */
-  tags: ['b2b', 'mobile', 'web', 'saas'],
+  /** Ключевые слова вокруг фото в hero. В макете четвёртое — «saas»,
+      владелец заменил его на «b2c». */
+  tags: ['b2b', 'mobile', 'web', 'b2c'],
 
   experience: [
     {
