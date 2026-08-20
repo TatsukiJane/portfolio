@@ -41,24 +41,22 @@ const { shot, interactive = false, eager = false } = Astro.props;
     transition: background-color 0.3s ease;
   }
 
-  /* Тот же отклик, что у ряда телефонов: фон едва темнеет, экран
-     приподнимается. В макете эффекта нет — он ответ на то, что карточка
-     кейса целиком ссылка. */
-  .shot--interactive:hover {
-    background: #efefef;
+  /* Тот же отклик, что у ряда телефонов, и приходит он так же — переменными
+     сверху, а не от собственного `:hover`: наводят на карточку целиком,
+     а серый контейнер лишь её часть. Значения объявляет CaseCard; без них
+     (на странице кейса) контейнер остаётся неподвижным. */
+  .shot--interactive {
+    background: var(--case-hover-surface, var(--surface-secondary));
   }
 
   .shot :global(.mockup) {
     transition: transform 0.3s ease;
   }
 
-  .shot--interactive:hover :global(.mockup) {
-    transform: translateY(-8px);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .shot--interactive:hover :global(.mockup) {
-      transform: none;
-    }
+  /* Экран один, каскаду не с кем идти — но очередь та же: он поднимается
+     после заголовка и плашек, на `--case-hover-delay`. */
+  .shot--interactive :global(.mockup) {
+    transform: translateY(var(--case-hover-lift, 0));
+    transition-delay: var(--case-hover-delay, 0ms);
   }
 </style>
