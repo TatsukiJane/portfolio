@@ -48,15 +48,61 @@ const { label, variant = 'neutral' } = Astro.props;
     width: 20px;
   }
 
-  .badge--success {
-    color: var(--text-success);
-    background: var(--surface-success-subtle);
-    border-color: var(--border-success-subtle);
+  /*
+   * `--badge-emphasis` — насыщенность плашки: 0 в покое, 1 когда её просят
+   * ожить. Её задаёт карточка кейса на своём `:hover` (см. CaseCard):
+   * scoped-стили Astro сюда не достают, а переменная наследуется свободно.
+   *
+   * Насыщенный цвет не заведён отдельным токеном, а выводится из уже
+   * имеющихся подмешиванием акцента — тогда он не может разойтись с базовым.
+   * Каждое свойство объявлено дважды: первая строка — фолбэк для браузеров
+   * без `color-mix()`, там плашка просто не меняется.
+   */
+  .badge {
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease;
   }
 
+  .badge--success {
+    color: var(--text-success);
+
+    background: var(--surface-success-subtle);
+    background: color-mix(
+      in oklab,
+      var(--surface-success-subtle),
+      var(--surface-success) calc(var(--badge-emphasis, 0) * 14%)
+    );
+
+    border-color: var(--border-success-subtle);
+    border-color: color-mix(
+      in oklab,
+      var(--border-success-subtle),
+      var(--surface-success) calc(var(--badge-emphasis, 0) * 22%)
+    );
+  }
+
+  /* Цвет текста здесь не подмешивается, а переключается между двумя готовыми
+     токенами: подряд идущие `color` минификатор схлопывает в одно объявление,
+     и фолбэк для браузеров без `color-mix()` пропадал бы — а вместе с ним
+     и обычный вид плашки. У `background` и `border-color` он этого
+     не делает, там пара «базовое значение + подмешивание» работает. */
   .badge--neutral {
-    color: var(--text-secondary);
+    color: var(--badge-neutral-text, var(--text-secondary));
+
     background: var(--surface-base);
+    background: color-mix(
+      in oklab,
+      var(--surface-base),
+      var(--text-primary) calc(var(--badge-emphasis, 0) * 5%)
+    );
+
     border-color: var(--border-neutral);
+    border-color: color-mix(
+      in oklab,
+      var(--border-neutral),
+      var(--text-primary) calc(var(--badge-emphasis, 0) * 14%)
+    );
   }
 </style>

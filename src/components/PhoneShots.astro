@@ -87,22 +87,19 @@ const { shots, interactive = false, eager = false } = Astro.props;
     transition: transform 0.3s ease;
   }
 
-  /* Телефоны приподнимаются лёгким каскадом слева направо, продолжая волну,
-     начатую заголовком и плашками: `--case-hover-delay` — это когда доходит
-     очередь до экранов, `--case-hover-stagger` — шаг между соседями.
-     Задержки тоже приходят переменными, и в этом весь трюк с возвратом:
-     стоит курсору уйти, переменные исчезают вместе с задержками, и вся
-     карточка опускается разом. Так этот эффект и был задуман. */
+  /* Телефоны приподнимаются лёгким каскадом слева направо; шаг волны —
+     `--case-hover-stagger`. Задержки тоже приходят переменной, и в этом
+     весь трюк с возвратом: стоит курсору уйти, она исчезает вместе с
+     задержками, и все опускаются разом. Так этот эффект и был задуман. */
   .shots--interactive .shots__device {
     transform: translateY(var(--case-hover-lift, 0));
-    transition-delay: var(--case-hover-delay, 0ms);
   }
 
   .shots--interactive .shots__device:nth-child(2) {
-    transition-delay: calc(var(--case-hover-delay, 0ms) + var(--case-hover-stagger, 0ms));
+    transition-delay: var(--case-hover-stagger, 0ms);
   }
 
   .shots--interactive .shots__device:nth-child(3) {
-    transition-delay: calc(var(--case-hover-delay, 0ms) + var(--case-hover-stagger, 0ms) * 2);
+    transition-delay: calc(var(--case-hover-stagger, 0ms) * 2);
   }
 </style>

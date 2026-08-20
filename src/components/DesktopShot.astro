@@ -53,10 +53,8 @@ const { shot, interactive = false, eager = false } = Astro.props;
     transition: transform 0.3s ease;
   }
 
-  /* Экран один, каскаду не с кем идти — но очередь та же: он поднимается
-     после заголовка и плашек, на `--case-hover-delay`. */
+  /* Экран один, каскаду не с кем идти — просто поднимается. */
   .shot--interactive :global(.mockup) {
     transform: translateY(var(--case-hover-lift, 0));
-    transition-delay: var(--case-hover-delay, 0ms);
   }
 </style>
