@@ -15,18 +15,21 @@
 import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
-const { profile } = await import('../src/data/profile.ts').catch(() => ({ profile: null }));
+/*
+ * Данные берутся из profile.ts напрямую — Node умеет импортировать .ts
+ * с 22.18. Раньше они лежали здесь литералами, и это ровно тот случай,
+ * когда дубль однажды забывают обновить: плашка у фото стала «b2c»,
+ * а на превью ссылки ещё месяц висела «saas».
+ */
+const { profile } = await import('../src/data/profile.ts').catch((error) => {
+  throw new Error(`Не удалось прочитать profile.ts: ${error.message}`);
+});
 
-// .ts напрямую в node не импортируется — данные продублированы литералами,
-// но при расхождении с profile.ts скрипт об этом скажет.
 const data = {
-  name: 'Толеген Айбек',
-  headlineLines: ['Продуктовый дизайнер', 'для комплексных продуктов'],
-  tags: ['b2b', 'mobile', 'web', 'saas'],
+  name: profile.name,
+  headlineLines: profile.headlineLines,
+  tags: profile.tags,
 };
-if (profile && profile.name !== data.name) {
-  throw new Error('profile.ts разошёлся с данными в og-image.mjs — обнови их здесь');
-}
 
 const previewBase = process.env.PREVIEW_URL ?? 'http://localhost:4321';
 
